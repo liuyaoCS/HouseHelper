@@ -46,6 +46,7 @@ public class UIServlet extends HttpServlet {
 		
 		response.setCharacterEncoding("utf-8");
 		response.setHeader("content-type", "text/html;charset=utf-8");
+		
 		//System.out.println(sb.toString());
 		String ret=getLianJiaDatas(sb.toString()).toString();
 		

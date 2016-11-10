@@ -4,7 +4,7 @@ public class HouseInfoData implements Comparable<HouseInfoData>{
 	private String picUrl;
 	private String linkUrl;
 	private String title;
-	private int price;
+	private double price;
 	private int unitPrice;
 	private String area;
 	private String address;
@@ -32,10 +32,10 @@ public class HouseInfoData implements Comparable<HouseInfoData>{
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public int getPrice() {
+	public double getPrice() {
 		return price;
 	}
-	public void setPrice(int price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 	public int getUnitPrice() {
@@ -53,14 +53,14 @@ public class HouseInfoData implements Comparable<HouseInfoData>{
 	@Override
 	public int compareTo(HouseInfoData data) {
 		// TODO Auto-generated method stub
-		int ret= this.price-data.getPrice();
+		double ret= this.price-data.getPrice();
 		if(ret==0){
 			ret= this.unitPrice-data.unitPrice;
 		}
 		if(ret==0){
 			ret=this.hashCode()-data.hashCode();
 		}
-		return ret;
+		return (int) ret;
 	}
 	@Override
 	public String toString() {
