@@ -10,9 +10,10 @@ import net.sf.json.JSONObject;
 
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.config.Config;
-import com.ly.spider.core.JavaHouseAddDBService;
+import com.ly.spider.core.JavaHouseAddDBService1;
 import com.ly.spider.core.JavaHouseAddDBService2;
-import com.ly.spider.core.JavaHouseAddDBService3;
+import com.ly.spider.core.JavaHouseAddDBService;
+import com.ly.spider.core.JavaHouseScheduleDBService;
 import com.ly.spider.core.JavaHouseService;
 import com.ly.spider.rule.Rule;
 
@@ -45,7 +46,7 @@ public class HouseTest
 	public static void addToDB()
 	{
 		try {
-			JavaHouseAddDBService3.configMysql();
+			JavaHouseAddDBService.configMysql();
 		} catch (PropertyVetoException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -58,11 +59,34 @@ public class HouseTest
 		long begintime=System.currentTimeMillis();
 		for(int i=0;i<Config.areas.length;i++){
 			String area=Config.areas[i];
-			Set<HouseInfoData> extract = JavaHouseAddDBService3.extract(preUrl+area+"/","/");		
+			Set<HouseInfoData> extract = JavaHouseAddDBService.extract(preUrl+area+"/","/");		
 			extracts.addAll(extract);
 		}
 		long endtime=System.currentTimeMillis();
 		System.out.println("共找到"+extracts.size()+"套,耗时:"+(endtime-begintime)/60000+"分钟");
+
+	}
+	public static void scheduleDB()
+	{
+		try {
+			JavaHouseAddDBService.configMysql();
+		} catch (PropertyVetoException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		Set<HouseInfoData> extracts =new ConcurrentSkipListSet<HouseInfoData>();
+		long begintime=System.currentTimeMillis();
+		for(int i=0;i<Config.areas.length;i++){
+			String area=Config.areas[i];
+			Set<HouseInfoData> extract = JavaHouseScheduleDBService.extract(preUrl+area+"/","/");		
+			extracts.addAll(extract);
+		}
+		long endtime=System.currentTimeMillis();
+		System.out.println("耗时:"+(endtime-begintime)/60000+"分钟");
 
 	}
 	public static void main(String[] args) {

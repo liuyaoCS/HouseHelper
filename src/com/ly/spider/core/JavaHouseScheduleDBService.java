@@ -45,16 +45,6 @@ public class JavaHouseScheduleDBService
 	public static Set<HouseInfoData> extract(String preUrl,String conditionUrl)
 	{
 		
-		try {
-			configMysql();
-		} catch (PropertyVetoException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
 		int pageNum=fetchPages(preUrl);
 		for(int i=1;i<=pageNum;i++){
 			String url=preUrl+"pg"+i+conditionUrl;
@@ -172,6 +162,7 @@ public class JavaHouseScheduleDBService
 				statement=(PreparedStatement) connection.prepareStatement(searchSql);
 				statement.setString(1, id);
 				ResultSet rs=statement.executeQuery();
+				statement.close();
 				if(rs!=null && rs.next()){
 					double dbprice=rs.getDouble("price");
 					if(dbprice!=data.getPrice()){
@@ -185,14 +176,15 @@ public class JavaHouseScheduleDBService
 						history=json.toString();
 						
 						
-						String insertSql="update houseinfo set price=? , history=? where id=?";
-						statement=(PreparedStatement) connection.prepareStatement(insertSql);
+						String updateSql="update houseinfo set price=? , history=? where id=?";
+						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
 						statement.setDouble(1, data.getPrice());
 						statement.setString(2, history);
 						statement.setString(3, id);
 						
 						statement.executeUpdate();
+						statement.close();
 					}
 				}else{
 					//insert
@@ -210,6 +202,7 @@ public class JavaHouseScheduleDBService
 					statement.setString(9, id);
 					
 					statement.executeUpdate();
+					statement.close();
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -217,12 +210,10 @@ public class JavaHouseScheduleDBService
 				
 			}
 			
-			////////
+			//////insert into mysql//////
 		}
+		
 		try {
-			//statement.executeBatch();
-			//connection.commit();
-			statement.close();
 			connection.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

@@ -29,7 +29,13 @@ import com.ly.spider.util.TextUtil;
 //import net.sf.json.JSONArray; 
 //import net.sf.json.JSONObject;
 //import net.sf.json.util.JSONStringer;
-
+/**
+ * 线程池执行任务 通过FutureTask获取线程结束 线程池可复用
+ * 但是爬虫容易被封 所以建议仍然使用单线程爬虫
+ * @author Administrator
+ *
+ */
+@Deprecated
 public class JavaHouseAddDBService2
 {
 	private static Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
