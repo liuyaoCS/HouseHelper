@@ -18,6 +18,7 @@ import com.google.common.collect.Multiset.Entry;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.core.WebHouseService;
 import com.ly.spider.rule.Rule;
+import com.ly.spider.util.TextUtil;
 
 public class UIServlet extends HttpServlet {
 	private  String BASEURL="http://bj.lianjia.com/ershoufang/";
@@ -36,13 +37,35 @@ public class UIServlet extends HttpServlet {
 		
 		Map<String, String[]> map=request.getParameterMap();
 		StringBuilder sb=new StringBuilder();
-		for(String key:map.keySet()){
-			String value=map.get(key)[0];
-			if(key.equals("rs")){
-				value=URLEncoder.encode(value, "utf8");
-			}
-			sb.append(key).append(value);	
+//		for(String key:map.keySet()){
+//			String value=map.get(key)[0];
+//			if(key.equals("rs")){
+//				value=URLEncoder.encode(value, "utf8");
+//			}
+//			sb.append(key).append(value);	
+//		}
+		if(!TextUtil.isEmpty(map.get("f")[0])){
+			sb.append("f").append(map.get("f")[0]);
 		}
+		if(!TextUtil.isEmpty(map.get("l")[0])){
+			sb.append("l").append(map.get("l")[0]);
+		}
+		if(!TextUtil.isEmpty(map.get("ba")[0])){
+			sb.append("ba").append(map.get("ba")[0]);
+		}	
+		if(!TextUtil.isEmpty(map.get("ea")[0])){
+			sb.append("ea").append(map.get("ea")[0]);
+		}
+		if(!TextUtil.isEmpty(map.get("bp")[0])){
+			sb.append("bp").append(map.get("bp")[0]);
+		}	
+		if(!TextUtil.isEmpty(map.get("ep")[0])){
+			sb.append("ep").append(map.get("ep")[0]);
+		}
+		if(!TextUtil.isEmpty(map.get("rs")[0])){
+			sb.append("rs").append(URLEncoder.encode(map.get("rs")[0], "utf8"));
+		}
+		
 		
 		response.setCharacterEncoding("utf-8");
 		response.setHeader("content-type", "text/html;charset=utf-8");

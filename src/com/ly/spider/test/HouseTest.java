@@ -69,7 +69,7 @@ public class HouseTest
 	public static void scheduleDB()
 	{
 		try {
-			JavaHouseAddDBService.configMysql();
+			JavaHouseScheduleDBService.configMysql();
 		} catch (PropertyVetoException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -86,12 +86,13 @@ public class HouseTest
 			extracts.addAll(extract);
 		}
 		long endtime=System.currentTimeMillis();
-		System.out.println("耗时:"+(endtime-begintime)/60000+"分钟");
+		System.out.println("新增"+extracts.size()+"套。报价变动"+JavaHouseScheduleDBService.modifyDatas.size()+" 套。耗时:"+(endtime-begintime)/60000+"分钟");
 
 	}
 	public static void main(String[] args) {
 		
 		//getLianJiaDatas();
-		addToDB();
+		//addToDB();
+		scheduleDB();
 	}
 }

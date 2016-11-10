@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -39,6 +40,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class JavaHouseScheduleDBService
 {
 	private static Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
+	public static Set<HouseInfoData> modifyDatas=new ConcurrentSkipListSet<HouseInfoData>();
 	private static String tag="li.clear";
 	private static ComboPooledDataSource cpds;
 	
@@ -152,7 +154,6 @@ public class JavaHouseScheduleDBService
 			data.setArea(area);
 			data.setAddress(address);
 			
-			datas.add(data);
 			//////insert into mysql////
 			int index=linkUrl.indexOf(".html");
 	        String id=linkUrl.substring(index-12, index);
@@ -162,7 +163,7 @@ public class JavaHouseScheduleDBService
 				statement=(PreparedStatement) connection.prepareStatement(searchSql);
 				statement.setString(1, id);
 				ResultSet rs=statement.executeQuery();
-				statement.close();
+				
 				if(rs!=null && rs.next()){
 					double dbprice=rs.getDouble("price");
 					if(dbprice!=data.getPrice()){
@@ -176,6 +177,8 @@ public class JavaHouseScheduleDBService
 						history=json.toString();
 						
 						
+						statement.close();
+						
 						String updateSql="update houseinfo set price=? , history=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
@@ -185,9 +188,13 @@ public class JavaHouseScheduleDBService
 						
 						statement.executeUpdate();
 						statement.close();
+						modifyDatas.add(data);
 					}
 				}else{
 					//insert
+					
+					statement.close();
+					
 					String insertSql="insert into houseinfo(linkUrl,picUrl,title,price,unitPrice,area,address,history,id) values(?,?,?,?,?,?,?,?,?)";
 					statement=(PreparedStatement) connection.prepareStatement(insertSql);
 					
@@ -203,6 +210,7 @@ public class JavaHouseScheduleDBService
 					
 					statement.executeUpdate();
 					statement.close();
+					datas.add(data);
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -228,7 +236,7 @@ public class JavaHouseScheduleDBService
 		String price=input.substring(beginIndex+2, endIndex);
 		return Integer.parseInt(price);
 	}
-	private static void configMysql()
+	public static void configMysql()
 			throws PropertyVetoException, SQLException {
 		cpds=new ComboPooledDataSource();
 		cpds.setDriverClass("com.mysql.jdbc.Driver");
