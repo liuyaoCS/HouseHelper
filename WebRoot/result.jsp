@@ -91,11 +91,16 @@
               var ret=sum*dm*Math.pow((1+dm), months);
               ret/=(Math.pow((1+dm), months)-1); //每月还贷
               
+              //1 迭代变量是j不要用i！！！否则肯定要越界，要么只出现开始的不分结果，要么显示不出来。
+              //2 不要用history这个变量声明，这是js的系统变量！！！
+              //3 js有+=操作
+              //4 jsonobject取value可以obj['key']或obj["key"] 但最好用。操作符 obj.key
               var jsonArray = houses[i].history;
-              var history='';
-			  for(var i=0;i<jsonArray.length;i++) {
-				  history+=jsonArray[i]['price']+'万 '+jsonArray[i]['date']+'; ';
-			  }
+              var historyprice="";
+			  for(var j=0;j<jsonArray.length;j++) {
+				  //historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
+				  historyprice+=jsonArray[j].price+"万 "+jsonArray[j].date;
+			  } 
 
               $("#list").append("<li>"
         	  				+"<div class='item'>"
@@ -103,8 +108,8 @@
 							+   "<div class='right'>"
 							+       "<h3><a href="+houses[i].linkUrl+">"+houses[i].title+"</a></h3>"
 							+       "<div><span>"+houses[i].area+"."+houses[i].address+"</span></div>"
-							+       "<div ><h4>"+houses[i].price+"万</h4>&nbsp;<h5>单价:"+houses[i].unitPrice+"元/平米</h5></div>"
-							+       "<div ><h5>历史报价:"+history+"</h5></div>"
+							+       "<div ><h4>"+houses[i].price+"万</h4>&nbsp;单价:"+houses[i].unitPrice+"元/平米</div>"
+							+       "<div ><h5>历史报价:"+historyprice+"</h5></div>"
 							+       "<div ><span>首付:"+downPay.toFixed(2)+"万  每月还贷"+ret.toFixed(2)+"元</span></div>"
 							+    "</div>"
 							+ "</div>"
