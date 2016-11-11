@@ -1,11 +1,17 @@
 package com.ly.spider.core;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.jsoup.Connection;
@@ -14,16 +20,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.rule.Rule;
 import com.ly.spider.rule.RuleException;
 import com.ly.spider.util.TextUtil;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 
-public class WebHouseService
+public class WebSearchService
 {
 	private  Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
 	private  ExecutorService service=Executors.newCachedThreadPool();
+	
 	private  class Task implements Runnable{
 		String url;
 		String tag;
@@ -89,8 +98,19 @@ public class WebHouseService
 		return pages;
 	}
 	private  void fetchHousesInfo(String url,String tag){
-		Connection conn = Jsoup.connect(url);
 		
+		/////mysql////////////
+		java.sql.Connection connection=null;
+		PreparedStatement statement=null;
+		try {
+			connection = DataSource.getInstance().getConnection();
+			//connection.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//////////jsoup////////////
+		Connection conn = Jsoup.connect(url);
 		Document doc = null;
 		try {
 			doc = conn.timeout(100000).get();
@@ -98,7 +118,6 @@ public class WebHouseService
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		Elements results = doc.select(tag);
 		for (Element result : results)
 		{
@@ -125,6 +144,42 @@ public class WebHouseService
 			data.setTitle(title);
 			data.setArea(area);
 			data.setAddress(address);
+			
+			int index=linkUrl.indexOf(".html");
+	        String id=linkUrl.substring(index-12, index);
+	      
+			try {
+				String searchSql="select * from houseinfo where id=?";
+				statement=(PreparedStatement) connection.prepareStatement(searchSql);
+				statement.setString(1, id);
+				
+				ResultSet rs=statement.executeQuery();
+				String history;
+				if(rs!=null && rs.next()){
+					history=rs.getString("history");
+				}else{
+					//新找到的房源暂时不添加到数据库 数据库的添加默认只有每天schedule时
+//					JSONObject jsonObject=new JSONObject();
+//			        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
+//			        String now=dateFormat.format(new Date());
+//			        jsonObject.put(data.getPrice(), now);
+//			        history=jsonObject.toString();
+					
+					JSONArray jsonArray=new JSONArray();
+			        JSONObject jsonObject=new JSONObject();
+			        jsonObject.put("price", data.getPrice());
+			        jsonObject.put("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+			        jsonArray.add(jsonObject);
+			        history=jsonArray.toString();
+				}
+				data.setHistory(history);
+				
+				statement.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
 			
 			datas.add(data);
 		}

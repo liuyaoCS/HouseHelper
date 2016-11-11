@@ -1,27 +1,18 @@
 package com.ly.spider.core;
 
-import java.awt.List;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.jsoup.Connection;
@@ -30,21 +21,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
-import com.ly.spider.rule.Rule;
-import com.ly.spider.rule.RuleException;
-import com.ly.spider.util.TextUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 
-public class JavaHouseScheduleDBService
+public class WebScheduleDBService
 {
-	private static Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
+	public static Set<HouseInfoData> newDatas=new ConcurrentSkipListSet<HouseInfoData>();
 	public static Set<HouseInfoData> modifyDatas=new ConcurrentSkipListSet<HouseInfoData>();
 	private static String tag="li.clear";
-	private static ComboPooledDataSource cpds;
+
 	
-	public static Set<HouseInfoData> extract(String preUrl,String conditionUrl)
+	public static void extract(String preUrl,String conditionUrl)
 	{
 		
 		int pageNum=fetchPages(preUrl);
@@ -55,17 +44,14 @@ public class JavaHouseScheduleDBService
 		}
 	
 		try {
-			System.out.println(preUrl+" finish,count->"+datas.size());
+			System.out.println(preUrl+" finish,count->"+newDatas.size());
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return datas;
 	}
 	private static int fetchPages(String url){
-		
-		Connection conn = Jsoup.connect(url);
 		////////header/////////
 		Map<String, String> header = new HashMap<String, String>();
 		header.put("Host", "bj.lianjia.com");
@@ -74,8 +60,9 @@ public class JavaHouseScheduleDBService
 		header.put("Accept-Language", "zh-CN,zh;q=0.8");
 		header.put("Cache-Control", "max-age=0");
 		header.put("Connection", "keep-alive");
-		Connection data1 = conn.data(header);
-		
+		header.put("Referer", "http://bj.lianjia.com/");
+		//header.put("Cookie", "lianjia_uuid=2a78cbb5-d0ec-4114-8d56-aba9b4e80711; all-lj=144beda729446a2e2a6860f39454058b; _jzqckmp=1; select_city=110000; _jzqx=1.1478601358.1478853669.6.jzqsr=localhost:8080|jzqct=/househelper/uiservlet.jzqsr=captcha%2Elianjia%2Ecom|jzqct=/; _jzqy=1.1478596144.1478854424.4.jzqsr=baidu|jzqct=%E9%93%BE%E5%AE%B6.jzqsr=baidu; _ga=GA1.2.1353923336.1478745673; CNZZDATA1253477573=1234600298-1478593989-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853276; CNZZDATA1254525948=818341921-1478594932-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478854139; CNZZDATA1255633284=992971032-1478594548-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853771; CNZZDATA1255604082=674674676-1478594240-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853475; _qzja=1.1925370159.1478596144085.1478841931567.1478853668904.1478854497485.1478854669372.0.0.0.220.14; _qzjb=1.1478853668903.5.0.0.0; _qzjc=1; _qzjto=22.3.0; _smt_uid=5821962f.34eed583; _jzqa=1.1805320548480478500.1478596144.1478841932.1478853669.14; _jzqc=1; _jzqb=1.5.10.1478853669.1; lianjia_ssid=333626f2-a0b8-425d-9b1c-ed066d206673");
+		Connection conn = Jsoup.connect(url).data(header);
 		//////////////
 		Document doc = null;
 		try {
@@ -96,7 +83,7 @@ public class JavaHouseScheduleDBService
 		return pages;
 	}
 	private static void fetchHousesInfo(String url){
-		Connection conn = Jsoup.connect(url);
+		
 		////////header/////////
 		Map<String, String> header = new HashMap<String, String>();
 		header.put("Host", "bj.lianjia.com");
@@ -105,7 +92,7 @@ public class JavaHouseScheduleDBService
 		header.put("Accept-Language", "zh-CN,zh;q=0.8");
 		header.put("Cache-Control", "max-age=0");
 		header.put("Connection", "keep-alive");
-		Connection data1 = conn.data(header);
+		Connection conn = Jsoup.connect(url).data(header);
 		//////////////
 		Document doc = null;
 		try {
@@ -115,11 +102,10 @@ public class JavaHouseScheduleDBService
 			e.printStackTrace();
 		}
 		/////////////mysql////////
-		
 		java.sql.Connection connection=null;
 		PreparedStatement statement=null;
 		try {
-			connection = cpds.getConnection();
+			connection = DataSource.getInstance().getConnection();
 			//connection.setAutoCommit(false);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -154,7 +140,7 @@ public class JavaHouseScheduleDBService
 			data.setArea(area);
 			data.setAddress(address);
 			
-			//////insert into mysql////
+			//////mysql////
 			int index=linkUrl.indexOf(".html");
 	        String id=linkUrl.substring(index-12, index);
 			try {
@@ -172,13 +158,19 @@ public class JavaHouseScheduleDBService
 						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
 				        String show=dateFormat.format(new Date());
 						
-						JSONObject json=JSONObject.fromObject(history);
-						json.put(data.getPrice(), show);
-						history=json.toString();
+//						JSONObject json=JSONObject.fromObject(history);
+//						json.put(data.getPrice(), show);
+//						history=json.toString();
+				        
+				        JSONArray jsonArray=JSONArray.fromObject(history);
+				        JSONObject jsonObject=new JSONObject();
+				        jsonObject.put("price", data.getPrice());
+				        jsonObject.put("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+				        jsonArray.add(jsonObject);
+				        history=jsonArray.toString();
 						
 						
 						statement.close();
-						
 						String updateSql="update houseinfo set price=? , history=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
@@ -189,14 +181,27 @@ public class JavaHouseScheduleDBService
 						statement.executeUpdate();
 						statement.close();
 						modifyDatas.add(data);
+						System.out.println("价格变动->"+data.getLinkUrl());
 					}
 				}else{
 					//insert
 					
 					statement.close();
-					
 					String insertSql="insert into houseinfo(linkUrl,picUrl,title,price,unitPrice,area,address,history,id) values(?,?,?,?,?,?,?,?,?)";
 					statement=(PreparedStatement) connection.prepareStatement(insertSql);
+					
+//					JSONObject jsonObject=new JSONObject();
+//			        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
+//			        String now=dateFormat.format(new Date());
+//			        jsonObject.put(data.getPrice(), now);
+//			        String history=jsonObject.toString();
+					
+					JSONArray jsonArray=new JSONArray();
+			        JSONObject jsonObject=new JSONObject();
+			        jsonObject.put("price", data.getPrice());
+			        jsonObject.put("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+			        jsonArray.add(jsonObject);
+			        String history=jsonArray.toString();
 					
 					statement.setString(1, data.getLinkUrl());
 					statement.setString(2, data.getPicUrl());
@@ -205,12 +210,13 @@ public class JavaHouseScheduleDBService
 					statement.setInt(5, data.getUnitPrice());
 					statement.setString(6, data.getArea());
 					statement.setString(7, data.getAddress());
-					statement.setString(8, "");
+					statement.setString(8, history);
 					statement.setString(9, id);
 					
 					statement.executeUpdate();
 					statement.close();
-					datas.add(data);
+					newDatas.add(data);
+					System.out.println("新增房源->"+data.getLinkUrl());
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -218,7 +224,7 @@ public class JavaHouseScheduleDBService
 				
 			}
 			
-			//////insert into mysql//////
+			//////mysql//////
 		}
 		
 		try {
@@ -236,12 +242,5 @@ public class JavaHouseScheduleDBService
 		String price=input.substring(beginIndex+2, endIndex);
 		return Integer.parseInt(price);
 	}
-	public static void configMysql()
-			throws PropertyVetoException, SQLException {
-		cpds=new ComboPooledDataSource();
-		cpds.setDriverClass("com.mysql.jdbc.Driver");
-		cpds.setJdbcUrl("jdbc:mysql://localhost:3306/houses");
-		cpds.setUser("root");
-		cpds.setPassword("985910");
-	}
+	
 }

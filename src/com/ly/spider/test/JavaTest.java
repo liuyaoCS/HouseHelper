@@ -27,6 +27,10 @@ public class JavaTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
         String show=dateFormat.format(new Date());
         System.out.println(show);
+        
+        double a=1.0;
+        double b=1;
+        System.out.println(a==b);
 	}
 
 }

@@ -63,7 +63,7 @@
     <div id="count"></div>
     <ul id="list">
     </ul>
-    <script type="text/javascript">
+    <script type="text/javascript" charset="UTF-8">
     	var json = <%=request.getAttribute("data")%>;     	
         // var json=eval(jsonstr);
         $("#count").html("共找到<h3 style='display : inline'> "+json.count+"</h3> 套");
@@ -90,6 +90,13 @@
               var agencyGet=houses[i].price*10000*ch/100;
               var ret=sum*dm*Math.pow((1+dm), months);
               ret/=(Math.pow((1+dm), months)-1); //每月还贷
+              
+              var jsonArray = houses[i].history;
+              var history='';
+			  for(var i=0;i<jsonArray.length;i++) {
+				  history+=jsonArray[i]['price']+'万 '+jsonArray[i]['date']+'; ';
+			  }
+
               $("#list").append("<li>"
         	  				+"<div class='item'>"
 							+   "<a href='#'><img src="+houses[i].picUrl+"/></a>"
@@ -97,6 +104,7 @@
 							+       "<h3><a href="+houses[i].linkUrl+">"+houses[i].title+"</a></h3>"
 							+       "<div><span>"+houses[i].area+"."+houses[i].address+"</span></div>"
 							+       "<div ><h4>"+houses[i].price+"万</h4>&nbsp;<h5>单价:"+houses[i].unitPrice+"元/平米</h5></div>"
+							+       "<div ><h5>历史报价:"+history+"</h5></div>"
 							+       "<div ><span>首付:"+downPay.toFixed(2)+"万  每月还贷"+ret.toFixed(2)+"元</span></div>"
 							+    "</div>"
 							+ "</div>"

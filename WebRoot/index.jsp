@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=utf8"
+    pageEncoding="utf8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,9 +76,18 @@
 	</style>
 </head>
 <body>
+	<%
+		ServletContext context=getServletContext();
+		String newHouseNum=(String)context.getAttribute("newHouseNum");
+		String modifyHouseNum=(String)context.getAttribute("modifyHouseNum");
+		String avgPrice=(String)context.getAttribute("avgPrice");
+		String unitAvgPrice=(String)context.getAttribute("unitAvgPrice");
+		
+	 %>
 	<form action="/HouseHelper/UIServlet" method="post" class="basic-grey">
-		<h1>北京二手房
-			<span>二手房查询、费用计算神器</span>
+		<h1>二手房查询|费用计算神器
+			<span>今日新增房源:<%=newHouseNum %>套 &nbsp报价变动:<%=modifyHouseNum %>套</span>
+			<span>全市均价:<%=unitAvgPrice %>元/每平米&nbsp每套均价:<%=avgPrice %>万元</span>
 		</h1>
 		<label>
 			<span>价格 :</span>

@@ -1,4 +1,4 @@
-package com.ly.spider.config;
+package com.ly.spider.app;
 
 public class Config {
 	public static String[] areas=new String[]{

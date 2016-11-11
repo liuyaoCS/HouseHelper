@@ -1,20 +1,19 @@
 package com.ly.spider.core;
 
-import java.awt.List;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 
+import javax.enterprise.inject.New;
+
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.jsoup.Connection;
@@ -24,15 +23,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.ly.spider.bean.HouseInfoData;
-import com.ly.spider.rule.Rule;
-import com.ly.spider.rule.RuleException;
-import com.ly.spider.util.TextUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * 防止爬虫被封：单线程爬虫+header头伪造
+ * 历史版本:
+ * 	1 线程池执行任务 每次执行完要关闭线程池 线程池不可重复使用
+ * 	2 线程池执行任务 通过FutureTask获取线程结束 线程池可复用,但是爬虫容易被封 所以建议仍然使用单线程爬虫
  */
-public class JavaHouseAddDBService
+public class JavaAddDBService
 {
 	private static Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
 	private static String tag="li.clear";
@@ -150,11 +149,19 @@ public class JavaHouseAddDBService
 			int index=linkUrl.indexOf(".html");
 	        String id=linkUrl.substring(index-12, index);
 	        
+//	        JSONObject jsonObject=new JSONObject();
+//	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
+//	        String now=dateFormat.format(new Date());
+//	        jsonObject.put(data.getPrice(), now);
+//	        String history=jsonObject.toString();
+	        
+	        JSONArray jsonArray=new JSONArray();
 	        JSONObject jsonObject=new JSONObject();
-	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
-	        String now=dateFormat.format(new Date());
-	        jsonObject.put(data.getPrice(), now);
-	        String history=jsonObject.toString();
+	        jsonObject.put("price", data.getPrice());
+	        jsonObject.put("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+	        jsonArray.add(jsonObject);
+	        String history=jsonArray.toString();
+	        
 	        
 			try {
 				statement.setString(1, data.getLinkUrl());

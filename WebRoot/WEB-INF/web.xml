@@ -12,5 +12,9 @@
     <servlet-name>UIServlet</servlet-name>
     <url-pattern>/UIServlet</url-pattern>
   </servlet-mapping>
+  
+  <listener>
+  	<listener-class>com.ly.spider.listener.InitListener</listener-class>
+  </listener>
 
 </web-app>

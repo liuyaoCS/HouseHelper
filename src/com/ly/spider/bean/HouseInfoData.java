@@ -8,6 +8,21 @@ public class HouseInfoData implements Comparable<HouseInfoData>{
 	private int unitPrice;
 	private String area;
 	private String address;
+	//////extra///////
+	private String history;
+	private String id;
+	public String getHistory() {
+		return history;
+	}
+	public void setHistory(String history) {
+		this.history = history;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	public String getAddress() {
 		return address;
 	}
