@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf8"
-    pageEncoding="utf8"%>
+    pageEncoding="utf8"
+    import="java.util.List"
+    import="com.ly.spider.bean.PriceTrendData"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +11,7 @@
 	<style>
 		/* Basic Grey */
 		.basic-grey {
-			max-width:500px;
+			max-width:600px;
 			margin-left:auto;
 			margin-right:auto;
 			padding: 10px 10px 10px 10px;
@@ -82,12 +84,13 @@
 		String modifyHouseNum=(String)context.getAttribute("modifyHouseNum");
 		String avgPrice=(String)context.getAttribute("avgPrice");
 		String unitAvgPrice=(String)context.getAttribute("unitAvgPrice");
+		List<PriceTrendData> trends=(List<PriceTrendData>)context.getAttribute("trends");
 		
 	 %>
 	<form action="/HouseHelper/UIServlet" method="post" class="basic-grey">
 		<h1>二手房查询|费用计算神器
 			<span>今日新增房源:<%=newHouseNum %>套 &nbsp报价变动:<%=modifyHouseNum %>套</span>
-			<span>全市均价:<%=unitAvgPrice %>元/每平米&nbsp每套均价:<%=avgPrice %>万元</span>
+			<span>全市均价:<%=unitAvgPrice %>元/每平米&nbsp每套均价:<%=avgPrice %>万元&nbsp<a href='price.jsp'>房价走势</a></span>
 		</h1>
 		<label>
 			<span>价格 :</span>
@@ -104,6 +107,9 @@
 			<select name="f">
 				<option value="5">南北</option>
 				<option value="2">南</option>
+				<option value="1">东</option>
+				<option value="3">西</option>
+				<option value="4">北</option>
 			</select>
 		</label>
 		<label>
@@ -112,6 +118,9 @@
 				<option value="1">一室</option>
 				<option value="2" selected="selected">二室</option>
 				<option value="3">三室</option>
+				<option value="4">四室</option>
+				<option value="5">五室</option>
+				<option value="6">五室以上</option>
 			</select>
 		</label>
 		<label>

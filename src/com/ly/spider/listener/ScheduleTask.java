@@ -5,6 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -12,6 +16,7 @@ import javax.servlet.ServletContext;
 
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
+import com.ly.spider.bean.PriceTrendData;
 import com.ly.spider.core.WebScheduleDBService;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -34,7 +39,7 @@ public class ScheduleTask extends TimerTask {
 //		} 
 		cpds=DataSource.getInstance();
 		fetchPriceFromDB();
-		scheduleDB();
+		//scheduleDB();
 	}
 
 	private  void scheduleDB()
@@ -59,24 +64,43 @@ public class ScheduleTask extends TimerTask {
 		PreparedStatement statement=null;
 		try {
 			connection = cpds.getConnection();
-			
+			double avgPrice=0,unitAvgPrice = 0;
+			//计算总价均价
 			String searchSql="select avg(price) as avgPrice from houseinfo";
 			statement=(PreparedStatement) connection.prepareStatement(searchSql);
 			ResultSet rs=statement.executeQuery();
 			DecimalFormat df = new DecimalFormat("0.00");
 			if(rs!=null && rs.next()){
-				double avgPrice=rs.getDouble("avgPrice");
+				avgPrice=rs.getDouble("avgPrice");
 				this.mContext.setAttribute("avgPrice", df.format(avgPrice));
 			}
-			
+			//计算单价均价
 			String uSql="select avg(unitPrice) as unitAvgPrice from houseinfo";
 			statement=(PreparedStatement) connection.prepareStatement(uSql);
 			ResultSet urs=statement.executeQuery();
 			if(urs!=null && urs.next()){
-				double unitAvgPrice=urs.getDouble("unitAvgPrice");
+				unitAvgPrice=urs.getDouble("unitAvgPrice");
 				this.mContext.setAttribute("unitAvgPrice", df.format(unitAvgPrice));
 			}
+			//均价走势图	
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");  
+			String time=dateFormat.format(new Date());  
 			
+			String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+")";
+			statement=(PreparedStatement) connection.prepareStatement(iSql);
+			statement.executeUpdate();
+			
+			String trendSql="select id,unitPrice  from price order by id desc limit 10";
+			statement=(PreparedStatement) connection.prepareStatement(trendSql);
+			ResultSet trs=statement.executeQuery();
+			
+			List<PriceTrendData> trends=new ArrayList<PriceTrendData>();
+			while(trs.next()){
+				double unitPrice=trs.getDouble("unitPrice");
+				String id=trs.getString("id");
+				trends.add(0, new PriceTrendData(id,unitPrice,0));
+			}
+			this.mContext.setAttribute("trends", trends);
 			
 			statement.close();
 			connection.close();
