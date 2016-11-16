@@ -56,8 +56,8 @@ public class HouseTest
 		
 		Set<HouseInfoData> extracts =new ConcurrentSkipListSet<HouseInfoData>();
 		long begintime=System.currentTimeMillis();
-		for(int i=0;i<Config.areas.length;i++){
-			String area=Config.areas[i];
+		for(int i=0;i<Config.Areas.length;i++){
+			String area=Config.Areas[i];
 			Set<HouseInfoData> extract = JavaAddDBService.extract(preUrl+area+"/","/");		
 			extracts.addAll(extract);
 		}

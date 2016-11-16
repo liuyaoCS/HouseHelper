@@ -22,7 +22,7 @@ public class InitListener implements ServletContextListener{
 		context.setAttribute("modifyHouseNum", "0");
 		
 		timer=new Timer();
-		long delay=1000*30; //30s
+		long delay=1000*10; //10s
 		long period=1000*60*60*24;//1 day
 		timer.schedule(new ScheduleTask(context),delay,period);
 	

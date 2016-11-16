@@ -14,8 +14,12 @@ import java.util.TimerTask;
 
 import javax.servlet.ServletContext;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
+import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.bean.PriceTrendData;
 import com.ly.spider.core.WebScheduleDBService;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -46,8 +50,8 @@ public class ScheduleTask extends TimerTask {
 	{	
 	
 		long begintime=System.currentTimeMillis();
-		for(int i=0;i<Config.areas.length;i++){
-			String area=Config.areas[i];
+		for(int i=0;i<Config.Areas.length;i++){
+			String area=Config.Areas[i];
 			WebScheduleDBService.extract(preUrl+area+"/","/");		
 		}
 		int newHouseNum=WebScheduleDBService.newDatas.size();
@@ -82,15 +86,63 @@ public class ScheduleTask extends TimerTask {
 				unitAvgPrice=urs.getDouble("unitAvgPrice");
 				this.mContext.setAttribute("unitAvgPrice", df.format(unitAvgPrice));
 			}
+			//报价变动
+			List<HouseInfoData> upDatas=new ArrayList<HouseInfoData>();
+			String mUpSql="select * from houseinfo where gap>0 order by gap desc";
+			statement=(PreparedStatement) connection.prepareStatement(mUpSql);
+			ResultSet mUpRs=statement.executeQuery();
+			while(mUpRs.next()){
+				HouseInfoData data=new HouseInfoData();
+				data.setLinkUrl(mUpRs.getString("linkUrl"));
+				data.setPicUrl(mUpRs.getString("picUrl"));
+				data.setPrice(mUpRs.getDouble("price"));
+				data.setUnitPrice((int)mUpRs.getDouble("unitPrice"));
+				data.setTitle(mUpRs.getString("title"));
+				data.setArea(mUpRs.getString("area"));
+				data.setAddress(mUpRs.getString("address"));
+				data.setHistory(mUpRs.getString("history"));
+				data.setGap(mUpRs.getDouble("gap"));
+				
+				upDatas.add(data);
+			}
+			JSONArray upJson=JSONArray.fromObject(upDatas);
+			this.mContext.setAttribute("upDatas", upJson);
+		
+			
+			List<HouseInfoData> downDatas=new ArrayList<HouseInfoData>();
+			String mDownSql="select * from houseinfo where gap<0 order by gap asc";
+			statement=(PreparedStatement) connection.prepareStatement(mDownSql);
+			ResultSet mDownRs=statement.executeQuery();
+			while(mDownRs.next()){
+				HouseInfoData data=new HouseInfoData();
+				data.setLinkUrl(mDownRs.getString("linkUrl"));
+				data.setPicUrl(mDownRs.getString("picUrl"));
+				data.setPrice(mDownRs.getDouble("price"));
+				data.setUnitPrice((int)mDownRs.getDouble("unitPrice"));
+				data.setTitle(mDownRs.getString("title"));
+				data.setArea(mDownRs.getString("area"));
+				data.setAddress(mDownRs.getString("address"));
+				data.setHistory(mDownRs.getString("history"));
+				data.setGap(mDownRs.getDouble("gap"));
+				
+				downDatas.add(data);
+			}
+			JSONArray downJson=JSONArray.fromObject(downDatas);
+			this.mContext.setAttribute("downDatas", downJson);
 			//均价走势图	
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");  
 			String time=dateFormat.format(new Date());  
 			
-			String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+")";
-			statement=(PreparedStatement) connection.prepareStatement(iSql);
-			statement.executeUpdate();
+			try {
+				String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+")";
+				statement=(PreparedStatement) connection.prepareStatement(iSql);
+				statement.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			String trendSql="select id,unitPrice  from price order by id desc limit 10";
+			String trendSql="select id,unitPrice  from price order by id desc limit "+Config.TrendsLimit+"";
 			statement=(PreparedStatement) connection.prepareStatement(trendSql);
 			ResultSet trs=statement.executeQuery();
 			
@@ -101,6 +153,10 @@ public class ScheduleTask extends TimerTask {
 				trends.add(0, new PriceTrendData(id,unitPrice,0));
 			}
 			this.mContext.setAttribute("trends", trends);
+			for(PriceTrendData ptd:trends){
+				System.out.println(ptd);
+			}
+			
 			
 			statement.close();
 			connection.close();

@@ -154,13 +154,8 @@ public class WebScheduleDBService
 					double dbprice=rs.getDouble("price");
 					if(dbprice!=data.getPrice()){
 						//update
+						double gap=data.getPrice()-dbprice;
 						String history=rs.getString("history");
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  
-				        String show=dateFormat.format(new Date());
-						
-//						JSONObject json=JSONObject.fromObject(history);
-//						json.put(data.getPrice(), show);
-//						history=json.toString();
 				        
 				        JSONArray jsonArray=JSONArray.fromObject(history);
 				        JSONObject jsonObject=new JSONObject();
@@ -171,17 +166,32 @@ public class WebScheduleDBService
 						
 						
 						statement.close();
-						String updateSql="update houseinfo set price=? , history=? where id=?";
+						String updateSql="update houseinfo set price=? , history=? , gap=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
 						statement.setDouble(1, data.getPrice());
 						statement.setString(2, history);
-						statement.setString(3, id);
+						statement.setDouble(3, gap);
+						statement.setString(4, id);
 						
 						statement.executeUpdate();
 						statement.close();
 						modifyDatas.add(data);
 						System.out.println("价格变动->"+data.getLinkUrl());
+					}else{
+						//clear last gap
+						double gap=0;
+						
+						statement.close();
+						String updateSql="update houseinfo set price=? , gap=? where id=?";
+						statement=(PreparedStatement) connection.prepareStatement(updateSql);
+						
+						statement.setDouble(1, data.getPrice());
+						statement.setDouble(2, gap);
+						statement.setString(3, id);
+						
+						statement.executeUpdate();
+						statement.close();
 					}
 				}else{
 					//insert

@@ -11,6 +11,13 @@ public class HouseInfoData implements Comparable<HouseInfoData>{
 	//////extra///////
 	private String history;
 	private String id;
+	private double gap;
+	public double getGap() {
+		return gap;
+	}
+	public void setGap(double gap) {
+		this.gap = gap;
+	}
 	public String getHistory() {
 		return history;
 	}

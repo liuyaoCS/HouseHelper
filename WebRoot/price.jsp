@@ -1,3 +1,4 @@
+<%@page import="com.ly.spider.app.Config"%>
 <%@ page language="java" contentType="image/png;charset=utf8"
 	import="java.awt.*"
 	import="javax.imageio.*"
@@ -12,8 +13,9 @@
 response.setContentType("image/png;charset=utf8");
 ServletContext context=getServletContext();
 List<PriceTrendData> trends=(List<PriceTrendData>)context.getAttribute("trends");
+System.out.println("trends->"+trends.size());
 // 创建一个 610X400 的图像
-int width = 610, height = 400;
+int width = 1500, height = 400;
 BufferedImage image = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
 // 创建Java2D对象
 Graphics2D g2d = image.createGraphics();
@@ -21,7 +23,7 @@ Graphics2D g2d = image.createGraphics();
 g2d.setColor(Color.WHITE);
 g2d.fillRect(0, 0, width, height);
 // 绘制图表标题
-String chartTitle = "北京二手房房价走势";
+String chartTitle = "北京二手房30天内房价走势";
 g2d.setFont(new Font("宋体", Font.PLAIN, 22));
 g2d.setColor(Color.BLACK);
 g2d.drawString(chartTitle, 140, 40);
@@ -33,7 +35,7 @@ g2d.setFont(new Font("宋体", Font.PLAIN, 12));
 String str = "2016-";
 int stringLength = 0;
 
-for (int i = 1; i <= 10; i++)
+for (int i = 1; i <= 30; i++)
 {
   // 绘制垂直方向虚线
   g2d.drawLine(80+i * 40, 50, 80+i * 40, 360);
@@ -58,7 +60,7 @@ int avgPos=0;
 for (int i = 0; i < 300; i += 30)
 {
   // 绘制水平方向虚线
-  g2d.drawLine(120, 60+i, 570, 60+i);
+  g2d.drawLine(120, 60+i, width-120, 60+i);
 
   // 绘制纵轴上销售量的说明文字
   str += (10-i / 30)*10000;
@@ -77,7 +79,7 @@ for (int i = 0; i < 300; i += 30)
 g2d.setStroke(new BasicStroke(3.0f));
 g2d.setColor(new Color(53, 76, 112));
 g2d.drawLine(120, 50, 120, 360);
-g2d.drawLine(120, 360, 570, 360);
+g2d.drawLine(120, 360, width-120, 360);
 
 // 绘制纵坐标上的标题
 /* g2d.setFont(new Font("宋体", Font.PLAIN, 15));
@@ -86,14 +88,13 @@ g2d.drawString("元", 40, 45); */
 
 String[] bookTitle = { "均价(元)"/*, "总价"*/ };
 Color[] bookColor = { Color.RED, Color.ORANGE };
-int[] prices = new int[10];
-int[] times = new int[10];
+int[] prices = new int[Config.TrendsLimit];
+int[] times = new int[Config.TrendsLimit];
 
 g2d.setFont(new Font("宋体", Font.PLAIN, 12));
 for (int i = 0; i < bookTitle.length; i++)
 {
   // 初始化绘制数据
-  int bookSales = 0;
   for (int j = 0; j < prices.length; j++)
   {
 

@@ -1,7 +1,7 @@
 package com.ly.spider.app;
 
 public class Config {
-	public static String[] areas=new String[]{
+	public static final String[] Areas=new String[]{
 		"dongcheng",
 		"xicheng",
 		"chaoyang",
@@ -21,4 +21,5 @@ public class Config {
 		"yanqing",
 		"yanjiao"
 	};
+	public static final int TrendsLimit=30;
 }

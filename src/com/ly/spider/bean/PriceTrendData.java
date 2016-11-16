@@ -28,6 +28,10 @@ public class PriceTrendData {
 	public void setTotalPrice(double totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return id+" "+unitPrice+" "+totalPrice;
+	}
 
 }
