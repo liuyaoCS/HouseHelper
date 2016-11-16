@@ -2,6 +2,7 @@ package com.ly.spider.app;
 
 public class Config {
 	public static String BASEURL="http://bj.lianjia.com/ershoufang/";
+	public static String HOST="http://bj.lianjia.com";
 	public static final String[] Areas=new String[]{
 		"dongcheng",
 		"xicheng",

@@ -41,7 +41,10 @@ public class ScheduleTask extends TimerTask {
 		long begintime=System.currentTimeMillis();
 		for(int i=0;i<Config.Areas.length;i++){
 			String area=Config.Areas[i];
-			WebScheduleDBService.extract(Config.BASEURL+area+"/","/");		
+			//WebScheduleDBService.extract(Config.BASEURL+area+"/","/");
+			System.out.println(area+" begin-----------");
+			WebScheduleDBService.extractFine(Config.BASEURL+area+"/","/");	
+			System.out.println(area+" end-----------");
 		}
 		int newHouseNum=WebScheduleDBService.newDatas.size();
 		int modifyHouseNum=WebScheduleDBService.modifyDatas.size();

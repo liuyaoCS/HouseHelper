@@ -30,7 +30,9 @@ public class WebScheduleDBService
 {
 	public static Set<HouseInfoData> newDatas=new ConcurrentSkipListSet<HouseInfoData>();
 	public static Set<HouseInfoData> modifyDatas=new ConcurrentSkipListSet<HouseInfoData>();
-	
+	/**
+	 * 每个区限制100页结果（3000套）
+	 */
 	public static void extract(String preUrl,String conditionUrl)
 	{
 		
@@ -47,6 +49,54 @@ public class WebScheduleDBService
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	/**
+	 * 无限制
+	 */
+	public static void extractFine(String url,String conditionUrl){
+		
+		////////header/////////
+		Map<String, String> header = new HashMap<String, String>();
+		header.put("Host", "bj.lianjia.com");
+		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
+		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		header.put("Accept-Language", "zh-CN,zh;q=0.8");
+		header.put("Cache-Control", "max-age=0");
+		header.put("Connection", "keep-alive");
+		Connection conn = Jsoup.connect(url).data(header);
+		//////////////
+		Document doc = null;
+		try {
+			doc = conn.timeout(100000).get();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Element result = doc.select("div[data-role=ershoufang]").get(0);
+		Element child=result.child(1);
+		Elements as = child.select("a");
+		for (Element a : as)
+		{
+			String areaUrl=Config.HOST+a.attr("href");
+			System.out.println(a.attr("href")+" begin");
+			
+			int pageNum=fetchPages(areaUrl);
+			for(int i=1;i<=pageNum;i++){
+				String workUrl=areaUrl+"pg"+i+conditionUrl;
+				fetchHousesInfo(workUrl);       //同步方式
+				System.out.println(workUrl+" finish");
+			}
+		
+			try {
+				System.out.println(a.attr("href")+" finish,count->"+newDatas.size());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
 		}
 	}
 	private static int fetchPages(String url){
