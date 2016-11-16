@@ -2,14 +2,12 @@ package com.ly.spider.listener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 import java.util.Timer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.collections.map.HashedMap;
 
 public class InitListener implements ServletContextListener{
 	Timer timer=null;

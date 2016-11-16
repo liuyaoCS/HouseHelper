@@ -23,9 +23,7 @@ import org.jsoup.select.Elements;
 import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.rule.Rule;
-import com.ly.spider.rule.RuleException;
 import com.ly.spider.util.TextUtil;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 
 public class WebSearchService
@@ -140,7 +138,7 @@ public class WebSearchService
 			data.setLinkUrl(linkUrl);
 			data.setPicUrl(picUrl);
 			data.setPrice(Integer.valueOf(price));
-			data.setUnitPrice(atoi(unitPrice));
+			data.setUnitPrice(TextUtil.atoi(unitPrice));
 			data.setTitle(title);
 			data.setArea(area);
 			data.setAddress(address);
@@ -184,36 +182,5 @@ public class WebSearchService
 			datas.add(data);
 		}
 	}
-	private static int atoi(String input){
-		int beginIndex=input.indexOf("单价");
-		int endIndex=input.indexOf("元/平米");
-		String price=input.substring(beginIndex+2, endIndex);
-		return Integer.parseInt(price);
-	}
-	/**
-	 * 对传入的参数进行必要的校验
-	 */
-	private static void validateRule(Rule rule)
-	{
-		String url = rule.getUrl();
-		if (TextUtil.isEmpty(url))
-		{
-			throw new RuleException("url不能为空！");
-		}
-		if (!url.startsWith("http://"))
-		{
-			throw new RuleException("url的格式不正确！");
-		}
-
-		if (rule.getParams() != null && rule.getValues() != null)
-		{
-			if (rule.getParams().length != rule.getValues().length)
-			{
-				throw new RuleException("参数的键值对个数不匹配！");
-			}
-		}
-
-	}
-
 
 }

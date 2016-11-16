@@ -1,6 +1,5 @@
 package com.ly.spider.core;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,8 +10,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.text.SimpleDateFormat;
 
-import javax.enterprise.inject.New;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -22,8 +19,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.ly.spider.app.Config;
+import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.ly.spider.util.TextUtil;
 
 /**
  * 防止爬虫被封：单线程爬虫+header头伪造
@@ -34,8 +33,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class JavaAddDBService
 {
 	private static Set<HouseInfoData> datas=new ConcurrentSkipListSet<HouseInfoData>();
-	private static String tag="li.clear";
-	private static ComboPooledDataSource cpds;
 	private static String sql="insert into houseinfo(linkUrl,picUrl,title,price,unitPrice,area,address,history,id) values(?,?,?,?,?,?,?,?,?)";
 	
 	public static Set<HouseInfoData> extract(String preUrl,String conditionUrl)
@@ -109,7 +106,7 @@ public class JavaAddDBService
 		java.sql.Connection connection=null;
 		PreparedStatement statement=null;
 		try {
-			connection = cpds.getConnection();
+			connection = DataSource.getInstance().getConnection();
 			//connection.setAutoCommit(false);
 			statement=(PreparedStatement) connection.prepareStatement(sql);
 		} catch (SQLException e) {
@@ -117,7 +114,7 @@ public class JavaAddDBService
 			e.printStackTrace();
 		}
 		////////////////////
-		Elements results = doc.select(tag);
+		Elements results = doc.select(Config.TAG);
 		for (Element result : results)
 		{
 			Element linkUrlEle = result.select("div.title a").get(0);
@@ -139,7 +136,7 @@ public class JavaAddDBService
 			data.setLinkUrl(linkUrl);
 			data.setPicUrl(picUrl);
 			data.setPrice(Double.valueOf(price));
-			data.setUnitPrice(atoi(unitPrice));
+			data.setUnitPrice(TextUtil.atoi(unitPrice));
 			data.setTitle(title);
 			data.setArea(area);
 			data.setAddress(address);
@@ -181,7 +178,7 @@ public class JavaAddDBService
 				e.printStackTrace();
 			}
 			
-			////////
+			///////////////////////////
 		}
 		try {
 			//statement.executeBatch();
@@ -193,20 +190,6 @@ public class JavaAddDBService
 			e.printStackTrace();
 		}
 		
-		
 	}
-	private static int atoi(String input){
-		int beginIndex=input.indexOf("单价");
-		int endIndex=input.indexOf("元/平米");
-		String price=input.substring(beginIndex+2, endIndex);
-		return Integer.parseInt(price);
-	}
-	public static void configMysql()
-			throws PropertyVetoException, SQLException {
-		cpds=new ComboPooledDataSource();
-		cpds.setDriverClass("com.mysql.jdbc.Driver");
-		cpds.setJdbcUrl("jdbc:mysql://localhost:3306/houses");
-		cpds.setUser("root");
-		cpds.setPassword("985910");
-	}
+
 }

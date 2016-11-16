@@ -1,8 +1,6 @@
 package com.ly.spider.servlet;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import com.google.common.collect.Multiset.Entry;
+import com.ly.spider.app.Config;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.core.WebSearchService;
 import com.ly.spider.rule.Rule;
@@ -23,8 +21,7 @@ import com.ly.spider.util.TextUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class UIServlet extends HttpServlet {
-	private  String BASEURL="http://bj.lianjia.com/ershoufang/";
-	private  String TAG="li.clear";
+	
 	private  ComboPooledDataSource cpds;
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -80,13 +77,13 @@ public class UIServlet extends HttpServlet {
 		request.getRequestDispatcher("/result.jsp").forward(request, response);
 	}
 	public  JSONObject getLianJiaDatas(String condition){
-		Rule rule = new Rule(BASEURL+condition,
+		Rule rule = new Rule(Config.BASEURL+condition,
 				null, 
 				null,
-				TAG, //div.title a[data-el=ershoufang]
+				Config.TAG, //div.title a[data-el=ershoufang]
 				Rule.SELECTION, 
 				Rule.GET);
-		Set<HouseInfoData> extracts = new WebSearchService().extract(rule,BASEURL,condition);
+		Set<HouseInfoData> extracts = new WebSearchService().extract(rule,Config.BASEURL,condition);
 		JSONArray array=JSONArray.fromObject(extracts);
 		JSONObject ret=new JSONObject();
 		ret.put("count", extracts.size());

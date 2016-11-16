@@ -44,15 +44,6 @@ public class HouseTest
 //	
 	public static void addToDB()
 	{
-		try {
-			JavaAddDBService.configMysql();
-		} catch (PropertyVetoException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
 		Set<HouseInfoData> extracts =new ConcurrentSkipListSet<HouseInfoData>();
 		long begintime=System.currentTimeMillis();

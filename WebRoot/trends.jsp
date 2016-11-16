@@ -86,13 +86,13 @@ g2d.drawLine(120, 360, width-120, 360);
 g2d.drawString("元", 40, 45); */
 
 
-String[] bookTitle = { "均价(元)"/*, "总价"*/ };
-Color[] bookColor = { Color.RED, Color.ORANGE };
+String[] yTitle = { "均价(元)"/*, "总价"*/ };
+Color[] pointColor = { Color.RED, Color.ORANGE };
 int[] prices = new int[Config.TrendsLimit];
 int[] times = new int[Config.TrendsLimit];
 
 g2d.setFont(new Font("宋体", Font.PLAIN, 12));
-for (int i = 0; i < bookTitle.length; i++)
+for (int i = 0; i < yTitle.length; i++)
 {
   // 初始化绘制数据
   for (int j = 0; j < prices.length; j++)
@@ -101,11 +101,11 @@ for (int i = 0; i < bookTitle.length; i++)
     double tmp =avgPos-(trends.get(j).getUnitPrice()-50000)*30/10000;
     prices[j]=(int)tmp;
     times[j] = 120+j * 40;
-    //System.out.println(prices[j] );
+     g2d.drawRect(times[j]-2, prices[j]-2, 4, 4);
   }
 
-  g2d.setStroke(new BasicStroke(5.0f));
-  g2d.setColor(bookColor[i]);
+  g2d.setStroke(new BasicStroke(2.0f));
+  g2d.setColor(pointColor[i]);
 
   // 绘制月销售量折线
   g2d.drawPolyline(times, prices, prices.length);
@@ -114,7 +114,7 @@ for (int i = 0; i < bookTitle.length; i++)
   g2d.fillRect(30, 40+i * 20, 10, 10);
   g2d.setColor(Color.BLACK);
   g2d.setFont(new Font("宋体", Font.PLAIN, 12));
-  g2d.drawString(bookTitle[i], 45, 50+i * 20);
+  g2d.drawString(yTitle[i], 45, 50+i * 20);
 }
 
 //部署图形

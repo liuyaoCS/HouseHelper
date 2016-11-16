@@ -1,6 +1,5 @@
 package com.ly.spider.listener;
 
-import java.beans.PropertyVetoException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,25 +8,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.TimerTask;
 
 import javax.servlet.ServletContext;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.bean.PriceTrendData;
 import com.ly.spider.core.WebScheduleDBService;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class ScheduleTask extends TimerTask {
-	private final String preUrl="http://bj.lianjia.com/ershoufang/";
+
 	private ServletContext mContext;
-	private static ComboPooledDataSource cpds;
 	public ScheduleTask(ServletContext context) {
 		// TODO Auto-generated constructor stub
 		mContext=context;
@@ -35,15 +30,9 @@ public class ScheduleTask extends TimerTask {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-//		try {
-//			configMysql();
-//		} catch (PropertyVetoException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 
-		cpds=DataSource.getInstance();
+
 		fetchPriceFromDB();
-		//scheduleDB();
+		scheduleDB();
 	}
 
 	private  void scheduleDB()
@@ -52,7 +41,7 @@ public class ScheduleTask extends TimerTask {
 		long begintime=System.currentTimeMillis();
 		for(int i=0;i<Config.Areas.length;i++){
 			String area=Config.Areas[i];
-			WebScheduleDBService.extract(preUrl+area+"/","/");		
+			WebScheduleDBService.extract(Config.BASEURL+area+"/","/");		
 		}
 		int newHouseNum=WebScheduleDBService.newDatas.size();
 		int modifyHouseNum=WebScheduleDBService.modifyDatas.size();
@@ -67,7 +56,7 @@ public class ScheduleTask extends TimerTask {
 		java.sql.Connection connection=null;
 		PreparedStatement statement=null;
 		try {
-			connection = cpds.getConnection();
+			connection = DataSource.getInstance().getConnection();
 			double avgPrice=0,unitAvgPrice = 0;
 			//计算总价均价
 			String searchSql="select avg(price) as avgPrice from houseinfo";
@@ -156,8 +145,6 @@ public class ScheduleTask extends TimerTask {
 			for(PriceTrendData ptd:trends){
 				System.out.println(ptd);
 			}
-			
-			
 			statement.close();
 			connection.close();
 		} catch (SQLException e) {
@@ -165,14 +152,6 @@ public class ScheduleTask extends TimerTask {
 			e.printStackTrace();
 		}
 		
-	}
-	public static void configMysql()
-			throws PropertyVetoException{
-		cpds=new ComboPooledDataSource();
-		cpds.setDriverClass("com.mysql.jdbc.Driver");
-		cpds.setJdbcUrl("jdbc:mysql://localhost:3306/houses");
-		cpds.setUser("root");
-		cpds.setPassword("985910");
 	}
 
 }

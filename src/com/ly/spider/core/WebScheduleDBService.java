@@ -1,6 +1,5 @@
 package com.ly.spider.core;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,17 +20,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.ly.spider.util.TextUtil;
 
 
 public class WebScheduleDBService
 {
 	public static Set<HouseInfoData> newDatas=new ConcurrentSkipListSet<HouseInfoData>();
 	public static Set<HouseInfoData> modifyDatas=new ConcurrentSkipListSet<HouseInfoData>();
-	private static String tag="li.clear";
-
 	
 	public static void extract(String preUrl,String conditionUrl)
 	{
@@ -113,7 +111,7 @@ public class WebScheduleDBService
 		}
 		
 		////////////////////
-		Elements results = doc.select(tag);
+		Elements results = doc.select(Config.TAG);
 		for (Element result : results)
 		{
 			Element linkUrlEle = result.select("div.title a").get(0);
@@ -135,7 +133,7 @@ public class WebScheduleDBService
 			data.setLinkUrl(linkUrl);
 			data.setPicUrl(picUrl);
 			data.setPrice(Double.valueOf(price));
-			data.setUnitPrice(atoi(unitPrice));
+			data.setUnitPrice(TextUtil.atoi(unitPrice));
 			data.setTitle(title);
 			data.setArea(area);
 			data.setAddress(address);
@@ -183,12 +181,11 @@ public class WebScheduleDBService
 						double gap=0;
 						
 						statement.close();
-						String updateSql="update houseinfo set price=? , gap=? where id=?";
+						String updateSql="update houseinfo set  gap=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
-						statement.setDouble(1, data.getPrice());
-						statement.setDouble(2, gap);
-						statement.setString(3, id);
+						statement.setDouble(1, gap);
+						statement.setString(2, id);
 						
 						statement.executeUpdate();
 						statement.close();
@@ -243,14 +240,8 @@ public class WebScheduleDBService
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 	}
-	private static int atoi(String input){
-		int beginIndex=input.indexOf("单价");
-		int endIndex=input.indexOf("元/平米");
-		String price=input.substring(beginIndex+2, endIndex);
-		return Integer.parseInt(price);
-	}
+	
 	
 }
