@@ -19,6 +19,7 @@ import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.bean.PriceTrendData;
 import com.ly.spider.core.WebScheduleDBService;
+import com.ly.spider.util.TextUtil;
 
 public class ScheduleTask extends TimerTask {
 
@@ -30,9 +31,8 @@ public class ScheduleTask extends TimerTask {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
-		fetchPriceFromDB();
-		scheduleDB();
+		int newNum=scheduleDB();
+		fetchFromDB(newNum);
 	}
 	private static int preScheduleDB(){
 		java.sql.Connection connection=null;
@@ -64,7 +64,7 @@ public class ScheduleTask extends TimerTask {
 		}
 		return ret;
 	}
-	private  void scheduleDB()
+	private  int scheduleDB()
 	{	
 		int preNum=preScheduleDB();
 		System.out.println("共有"+preNum+"条记录flag置为0");
@@ -82,19 +82,23 @@ public class ScheduleTask extends TimerTask {
 		long endtime=System.currentTimeMillis();
 		System.out.println("新增"+newHouseNum+"套。报价变动"+modifyHouseNum+"套。耗时:"+(endtime-begintime)/60000+"分钟");
 		
-		this.mContext.setAttribute("newHouseNum", newHouseNum+"");
-		this.mContext.setAttribute("modifyHouseNum", modifyHouseNum+"");
+		//this.mContext.setAttribute("newHouseNum", newHouseNum+"");
+		//this.mContext.setAttribute("modifyHouseNum", modifyHouseNum+"");
 		
 		int postNum=postScheduleDB();
 		System.out.println("共有"+postNum+"条记录被删除");
+		
+		return newHouseNum;
 	}
-	private  void fetchPriceFromDB(){
+	private  void fetchFromDB(int newsNum){
 		
 		java.sql.Connection connection=null;
 		PreparedStatement statement=null;
 		try {
 			connection = DataSource.getInstance().getConnection();
 			double avgPrice=0,unitAvgPrice = 0;
+			//新增房源
+			this.mContext.setAttribute("newHouseNum", String.valueOf(newsNum));
 			//计算总价均价
 			String searchSql="select avg(price) as avgPrice from houseinfo";
 			statement=(PreparedStatement) connection.prepareStatement(searchSql);
@@ -133,7 +137,6 @@ public class ScheduleTask extends TimerTask {
 			}
 			JSONArray upJson=JSONArray.fromObject(upDatas);
 			this.mContext.setAttribute("upDatas", upJson);
-		
 			
 			List<HouseInfoData> downDatas=new ArrayList<HouseInfoData>();
 			String mDownSql="select * from houseinfo where gap<0 order by gap asc";
@@ -155,12 +158,16 @@ public class ScheduleTask extends TimerTask {
 			}
 			JSONArray downJson=JSONArray.fromObject(downDatas);
 			this.mContext.setAttribute("downDatas", downJson);
+			
+			int modifySize=upJson.size()+downJson.size();
+			this.mContext.setAttribute("modifyHouseNum", String.valueOf(modifySize));
 			//均价走势图	
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");  
-			String time=dateFormat.format(new Date());  
+//			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");  
+//			String time=dateFormat.format(new Date());  
+			String time=TextUtil.getDateString(-1);
 			
 			try {
-				String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+")";
+				String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+","+newsNum+","+upDatas.size()+","+downDatas.size()+")";
 				statement=(PreparedStatement) connection.prepareStatement(iSql);
 				statement.executeUpdate();
 			} catch (SQLException e) {
@@ -179,9 +186,9 @@ public class ScheduleTask extends TimerTask {
 				trends.add(0, new PriceTrendData(id,unitPrice,0));
 			}
 			this.mContext.setAttribute("trends", trends);
-			for(PriceTrendData ptd:trends){
-				System.out.println(ptd);
-			}
+//			for(PriceTrendData ptd:trends){
+//				System.out.println(ptd);
+//			}
 			statement.close();
 			connection.close();
 		} catch (SQLException e) {

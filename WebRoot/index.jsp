@@ -89,7 +89,7 @@
 	 %>
 	<form action="/HouseHelper/UIServlet" method="post" class="basic-grey">
 		<h1>二手房查询|费用计算神器
-			<span>今日新增房源:<%=newHouseNum %>套 &nbsp报价变动:<a href='modify.jsp'><%=modifyHouseNum %></a>套</span>
+			<span>昨日新增房源:<%=newHouseNum %>套 &nbsp报价变动:<a href='modify.jsp'><%=modifyHouseNum %></a>套</span>
 			<span>全市均价:<%=unitAvgPrice %>元/每平米&nbsp每套均价:<%=avgPrice %>万元&nbsp<a href='trends.jsp'>房价走势</a></span>
 		</h1>
 		<label>

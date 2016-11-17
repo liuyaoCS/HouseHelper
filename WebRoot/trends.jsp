@@ -13,7 +13,7 @@
 response.setContentType("image/png;charset=utf8");
 ServletContext context=getServletContext();
 List<PriceTrendData> trends=(List<PriceTrendData>)context.getAttribute("trends");
-System.out.println("trends->"+trends.size());
+//System.out.println("trends->"+trends.size());
 // 创建一个 610X400 的图像
 int width = 1500, height = 400;
 BufferedImage image = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
@@ -56,20 +56,30 @@ for (int i = 1; i <= 30; i++)
 
 str = "";
 int stringHeight = 0;
+
+final int highestPrice=67500; //最高价
+final int priceDeta=2500;     //每个格表示的价格
+
+final int maxDis=300;   //最大距离
+final int pointDeta=30; //每个格的距离
+int avgDis=maxDis/2;    //中间距离
+int avgPosPrice=highestPrice-maxDis/pointDeta/2*priceDeta;//中间价格 55000
+
 int avgPos=0;
-for (int i = 0; i < 300; i += 30)
+for (int i = 0; i < maxDis; i += pointDeta)
 {
   // 绘制水平方向虚线
   g2d.drawLine(120, 60+i, width-120, 60+i);
 
   // 绘制纵轴上销售量的说明文字
-  str += (10-i / 30)*10000;
+  //str += (10-i / 30)*10000;
+  str+=highestPrice-i*priceDeta/pointDeta;
   stringHeight = g2d.getFontMetrics().getAscent();
   stringLength = g2d.getFontMetrics().stringWidth(str);
 
   g2d.drawString(str, 110-stringLength, 60+i + stringHeight / 2);
   //中间五万的位置
-  if(i==150){
+  if(i==avgDis){
   	avgPos=60+i + stringHeight / 2;
   }
   str = "";
@@ -98,7 +108,7 @@ for (int i = 0; i < yTitle.length; i++)
   for (int j = 0; j < prices.length; j++)
   {
 
-    double tmp =avgPos-(trends.get(j).getUnitPrice()-50000)*30/10000;
+    double tmp =avgPos-(trends.get(j).getUnitPrice()-avgPosPrice)*pointDeta/priceDeta;
     prices[j]=(int)tmp;
     times[j] = 120+j * 40;
      g2d.drawRect(times[j]-2, prices[j]-2, 4, 4);

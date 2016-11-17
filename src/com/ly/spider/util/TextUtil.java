@@ -1,5 +1,10 @@
 package com.ly.spider.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import com.ly.spider.rule.Rule;
 import com.ly.spider.rule.RuleException;
 
@@ -42,5 +47,20 @@ public class TextUtil
 			}
 		}
 
+	}
+	/**
+	 * 
+	 * @param day 0表示今天 -1表示昨天 1表示明天 以此类推
+	 * @return
+	 */
+	public static String getDateString(int day){
+		Date date=new Date();//取时间
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(calendar.DATE,day);//把日期往后增加一天.整数往后推,负数往前移动
+        date=calendar.getTime(); //这个时间就是日期往后推一天的结果 
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        String dateString = formatter.format(date);
+        return dateString;
 	}
 }

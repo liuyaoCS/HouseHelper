@@ -166,7 +166,7 @@ public class WebSearchService
 					JSONArray jsonArray=new JSONArray();
 			        JSONObject jsonObject=new JSONObject();
 			        jsonObject.put("price", data.getPrice());
-			        jsonObject.put("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+			        jsonObject.put("date", TextUtil.getDateString(0));
 			        jsonArray.add(jsonObject);
 			        history=jsonArray.toString();
 				}
