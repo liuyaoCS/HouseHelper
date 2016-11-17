@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class WebScheduleDBService
 	}
 	/**
 	 * 无限制
+	 * url:区的url a：代表小区
 	 */
 	public static void extractFine(String url,String conditionUrl){
 		
@@ -88,17 +90,16 @@ public class WebScheduleDBService
 				fetchHousesInfo(workUrl);       //同步方式
 				System.out.println(workUrl+" finish");
 			}
-		
-			try {
-				System.out.println(a.attr("href")+" finish,count->"+newDatas.size());
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	
+			System.out.println(a.attr("href")+" finish,count->"+newDatas.size());
+		}
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+	
 	private static int fetchPages(String url){
 		////////header/////////
 		Map<String, String> header = new HashMap<String, String>();
@@ -214,28 +215,30 @@ public class WebScheduleDBService
 						
 						
 						statement.close();
-						String updateSql="update houseinfo set price=? , history=? , gap=? where id=?";
+						String updateSql="update houseinfo set price=? , history=? , gap=?, flag=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
 						statement.setDouble(1, data.getPrice());
 						statement.setString(2, history);
 						statement.setDouble(3, gap);
-						statement.setString(4, id);
+						statement.setInt(4, 1);
+						statement.setString(5, id);
+						
 						
 						statement.executeUpdate();
 						statement.close();
 						modifyDatas.add(data);
 						System.out.println("价格变动->"+data.getLinkUrl());
 					}else{
-						//clear last gap
-						double gap=0;
-						
+						//clear last gap and set flag
 						statement.close();
-						String updateSql="update houseinfo set  gap=? where id=?";
+						String updateSql="update houseinfo set  gap=? ,flag=? where id=?";
 						statement=(PreparedStatement) connection.prepareStatement(updateSql);
 						
-						statement.setDouble(1, gap);
-						statement.setString(2, id);
+						statement.setDouble(1, 0);
+						statement.setInt(2, 1);
+						statement.setString(3, id);
+						
 						
 						statement.executeUpdate();
 						statement.close();
@@ -244,7 +247,7 @@ public class WebScheduleDBService
 					//insert
 					
 					statement.close();
-					String insertSql="insert into houseinfo(linkUrl,picUrl,title,price,unitPrice,area,address,history,id) values(?,?,?,?,?,?,?,?,?)";
+					String insertSql="insert into houseinfo(linkUrl,picUrl,title,price,unitPrice,area,address,history,id,flag) values(?,?,?,?,?,?,?,?,?,?)";
 					statement=(PreparedStatement) connection.prepareStatement(insertSql);
 					
 //					JSONObject jsonObject=new JSONObject();
@@ -269,6 +272,7 @@ public class WebScheduleDBService
 					statement.setString(7, data.getAddress());
 					statement.setString(8, history);
 					statement.setString(9, id);
+					statement.setInt(10, 1);
 					
 					statement.executeUpdate();
 					statement.close();

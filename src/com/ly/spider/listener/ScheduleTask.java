@@ -34,10 +34,41 @@ public class ScheduleTask extends TimerTask {
 		fetchPriceFromDB();
 		scheduleDB();
 	}
-
+	private static int preScheduleDB(){
+		java.sql.Connection connection=null;
+		PreparedStatement statement=null;
+		int ret=0;
+		try {
+			connection = DataSource.getInstance().getConnection();
+			String resetSql="update houseinfo set flag=0";
+			statement=(PreparedStatement) connection.prepareStatement(resetSql);
+			ret=statement.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	private static int postScheduleDB(){
+		java.sql.Connection connection=null;
+		PreparedStatement statement=null;
+		int ret=0;
+		try {
+			connection = DataSource.getInstance().getConnection();
+			String deleteSql="delete from houseinfo where flag=0";
+			statement=(PreparedStatement) connection.prepareStatement(deleteSql);
+			ret=statement.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
 	private  void scheduleDB()
 	{	
-	
+		int preNum=preScheduleDB();
+		System.out.println("共有"+preNum+"条记录flag置为0");
+		
 		long begintime=System.currentTimeMillis();
 		for(int i=0;i<Config.Areas.length;i++){
 			String area=Config.Areas[i];
@@ -53,6 +84,9 @@ public class ScheduleTask extends TimerTask {
 		
 		this.mContext.setAttribute("newHouseNum", newHouseNum+"");
 		this.mContext.setAttribute("modifyHouseNum", modifyHouseNum+"");
+		
+		int postNum=postScheduleDB();
+		System.out.println("共有"+postNum+"条记录被删除");
 	}
 	private  void fetchPriceFromDB(){
 		
