@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width" />
 <title>北京二手房</title>
 <script src="js/jquery-1.4.2.js"></script>
+<link rel="stylesheet" href="css/dialog.css" media="all">
 <style  type="text/css">
 	#count{
 		text-align:center;
@@ -110,14 +111,96 @@
 							+       "<div><span>"+houses[i].area+"."+houses[i].address+"</span></div>"
 							+       "<div ><h4>"+houses[i].price+"万</h4>&nbsp;单价:"+houses[i].unitPrice+"元/平米</div>"
 							+       "<div ><h5>历史报价:"+historyprice+"</h5></div>"
-							+       "<div ><span>首付:"+downPay.toFixed(2)+"万  每月还贷"+ret.toFixed(2)+"元</span></div>"
+							+       "<div ><span>首付:"+downPay.toFixed(2)+"万  每月还贷"+ret.toFixed(2)+"元<input type='button' onclick='setPrice("+houses[i].price+")' class='compute' value='计算'></span></div>"
 							+    "</div>"
 							+ "</div>"
                             +"</li>");
         }
       	
-     
     </script>
-   
+    <div class="theme-popover">
+     <div class="theme-poptit">
+          <a href="javascript:;" title="关闭" class="close">×</a>
+          <h3>房贷计算器</h3>
+     </div>
+     <div class="theme-popbod">
+
+            <span>贷款类型:<select id="type">
+                        <option value=1>商业贷款</option>
+                        <option value=2>公积金贷款</option>
+                        <option value=3>组合贷款</option>
+                    </select>
+            </span><br/>
+            <span>
+                成交价(万元):<input id="price" type="text" >
+                房屋评估(折):<input id="eprice" type="text" value=0.9>
+            </span><br/>
+            <span>
+                银行折扣:<select id="discount"><option value=1.0>基准</option><option value=0.85 selected="selected">85折</option></select>
+                贷款年限:<select id="time"><option value=1>30年</option><option value=2>20年</option></select>
+            </span><br/>
+            <span>
+                服务费点:<input id="service" type="text" value="2.7">
+                契税费点:<input id="tax" type="text" value="1">
+            </span><br/>
+            <input type="button" id="btn" value="计算"><br/>
+            <p>首付金额:<span id="downPay"></span></p>
+            <p>贷款总额:<span id="sum"></span></p>
+            <p>每月还款:<span id="repay"></span></p>
+            <p>最低收入证明:<span id="income"></span></p>
+
+     </div>
+   </div>
+   <script type="text/javascript">
+  
+    function setPrice(p){
+    	
+       $('.theme-popover').show(1,null);
+       $("#price").val(p);
+       $("#downPay").html("");
+        $("#sum").html("");
+        $("#repay").html("");
+        $("#income").html("");
+    }
+    $('.theme-poptit .close').click(function(){
+
+            $('.theme-popover').hide(1,null);
+        });
+    
+    $("#btn").click(function () {
+        //alert("clicked");
+        var type=$("#type").val();
+        var price=$("#price").val();
+        var eprice=$("#eprice").val();
+        var discount=$("#discount").val();
+        var time=$("#time").val();
+        var service=$("#service").val();
+        var tax=$("#tax").val();
+        //alert(type+" "+price+" "+eprice+" "+discount+" "+time+" "+service+" "+tax);
+        var ch=service;
+        var tch=tax;
+        var dy=4.9*discount/100;
+        var dm=dy/12; //每月贷款利率
+        var hep=price*10000*eprice; //0.9房评
+        var sum=hep*0.65;//可贷款总额
+        var months=360;
+        var downPay=price*10000-sum+hep*tch/100+price*10000*ch/100;//总首付
+        downPay=downPay/10000;
+
+        var sellerGet=price*10000-sum;
+        var govGet=hep*tch/100;
+        var agencyGet=price*10000*ch/100;
+        var repay=sum*dm*Math.pow((1+dm), months);
+        repay/=(Math.pow((1+dm), months)-1); //每月还贷
+        //alert("downPay->"+downPay+" ret->"+ret);
+        sum/=10000;
+        var income=repay*2;
+        $("#downPay").html(downPay.toFixed(2)+" 万元");
+        $("#sum").html(sum.toFixed(2)+" 万元");
+        $("#repay").html(repay.toFixed(2)+" 元");
+        $("#income").html(income.toFixed(2)+" 元/月");
+
+    });
+   </script>
 </body>
 </html>
