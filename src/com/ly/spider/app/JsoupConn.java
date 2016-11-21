@@ -9,9 +9,10 @@ import org.jsoup.Jsoup;
 public class JsoupConn {
 	private static Connection conn;
 	public static Connection getInstance(String url){
-		if(conn==null){
-			setProxy();
-		}
+		//charles监听
+//		if(conn==null){
+//			setProxy();
+//		}
 		configHeader(url);
 		return conn;
 	}
