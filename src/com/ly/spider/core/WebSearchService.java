@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
@@ -14,8 +12,6 @@ import java.util.concurrent.Executors;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,7 +19,6 @@ import org.jsoup.select.Elements;
 import com.ly.spider.app.DataSource;
 import com.ly.spider.app.JsoupConn;
 import com.ly.spider.bean.HouseInfoData;
-import com.ly.spider.rule.Rule;
 import com.ly.spider.util.TextUtil;
 
 
@@ -47,7 +42,7 @@ public class WebSearchService
 		}
 		
 	}
-	public  Set<HouseInfoData> extract(Rule rule,String preUrl,String conditionUrl)
+	public  Set<HouseInfoData> extract(String preUrl,String conditionUrl,String tag)
 	{
 
 		// 进行对rule的必要校验
@@ -57,7 +52,7 @@ public class WebSearchService
 			String url=preUrl+"pg"+i+conditionUrl+"/";
 			System.out.println("fetch url->"+url);
 			//fetchHousesInfo(url, rule.getResultTagName());       //同步方式
-			service.submit(new Task(url, rule.getResultTagName()));//异步方式
+			service.submit(new Task(url, tag));//异步方式
 		}
 		service.shutdown();
 		while (true) {  

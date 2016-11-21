@@ -11,10 +11,7 @@ import net.sf.json.JSONObject;
 import com.ly.spider.app.Config;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.core.JavaAddDBService;
-import com.ly.spider.core.JavaAddDBService;
-import com.ly.spider.core.JavaAddDBService;
 import com.ly.spider.core.WebScheduleDBService;
-import com.ly.spider.rule.Rule;
 
 public class HouseTest
 {

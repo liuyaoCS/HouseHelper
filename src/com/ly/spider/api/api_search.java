@@ -17,7 +17,6 @@ import net.sf.json.JSONObject;
 import com.ly.spider.app.Config;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.core.WebSearchService;
-import com.ly.spider.rule.Rule;
 import com.ly.spider.util.TextUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -79,13 +78,8 @@ public class api_search extends HttpServlet {
 		    
 	}
 	public  JSONObject getLianJiaDatas(String condition){
-		Rule rule = new Rule(Config.BASEURL+condition,
-				null, 
-				null,
-				Config.TAG, //div.title a[data-el=ershoufang]
-				Rule.SELECTION, 
-				Rule.GET);
-		Set<HouseInfoData> extracts = new WebSearchService().extract(rule,Config.BASEURL,condition);
+		
+		Set<HouseInfoData> extracts = new WebSearchService().extract(Config.BASEURL,condition,Config.TAG);
 		JSONArray array=JSONArray.fromObject(extracts);
 		JSONObject ret=new JSONObject();
 		ret.put("count", extracts.size());
