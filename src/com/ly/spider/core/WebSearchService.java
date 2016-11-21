@@ -21,6 +21,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.ly.spider.app.DataSource;
+import com.ly.spider.app.JsoupConn;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.rule.Rule;
 import com.ly.spider.util.TextUtil;
@@ -75,11 +76,9 @@ public class WebSearchService
 	}
 	private  int fetchPages(String url){
 		
-		Connection conn = Jsoup.connect(url);
-		
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,11 +106,10 @@ public class WebSearchService
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//////////jsoup////////////
-		Connection conn = Jsoup.connect(url);
+	
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

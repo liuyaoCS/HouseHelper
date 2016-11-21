@@ -1,6 +1,8 @@
 package com.ly.spider.core;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -23,6 +26,7 @@ import org.jsoup.select.Elements;
 
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
+import com.ly.spider.app.JsoupConn;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.util.TextUtil;
 
@@ -58,26 +62,20 @@ public class WebScheduleDBService
 	 */
 	public static void extractFine(String url,String conditionUrl){
 		
-		////////header/////////
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Host", "bj.lianjia.com");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
-		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		header.put("Accept-Language", "zh-CN,zh;q=0.8");
-		header.put("Cache-Control", "max-age=0");
-		header.put("Connection", "keep-alive");
-		Connection conn = Jsoup.connect(url).data(header);
-		//////////////
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		Element result = doc.select("div[data-role=ershoufang]").get(0);
-		Element child=result.child(1);
+		Elements results = doc.select("div[data-role=ershoufang]");
+		if(results==null ||  results.size()==0){
+			System.out.println(url+" err");
+			return;
+		}
+		Element child=results.get(0).child(1);
 		Elements as = child.select("a");
 		for (Element a : as)
 		{
@@ -88,12 +86,24 @@ public class WebScheduleDBService
 			for(int i=1;i<=pageNum;i++){
 				String workUrl=areaUrl+"pg"+i+conditionUrl;
 				fetchHousesInfo(workUrl);       //同步方式
+				try {
+					Thread.sleep(3);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				System.out.println(workUrl+" finish");
+			}
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			System.out.println(a.attr("href")+" finish,count->"+newDatas.size());
 		}
 		try {
-			Thread.sleep(200);
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,21 +111,10 @@ public class WebScheduleDBService
 	}
 	
 	private static int fetchPages(String url){
-		////////header/////////
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Host", "bj.lianjia.com");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
-		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		header.put("Accept-Language", "zh-CN,zh;q=0.8");
-		header.put("Cache-Control", "max-age=0");
-		header.put("Connection", "keep-alive");
-		header.put("Referer", "http://bj.lianjia.com/");
-		//header.put("Cookie", "lianjia_uuid=2a78cbb5-d0ec-4114-8d56-aba9b4e80711; all-lj=144beda729446a2e2a6860f39454058b; _jzqckmp=1; select_city=110000; _jzqx=1.1478601358.1478853669.6.jzqsr=localhost:8080|jzqct=/househelper/uiservlet.jzqsr=captcha%2Elianjia%2Ecom|jzqct=/; _jzqy=1.1478596144.1478854424.4.jzqsr=baidu|jzqct=%E9%93%BE%E5%AE%B6.jzqsr=baidu; _ga=GA1.2.1353923336.1478745673; CNZZDATA1253477573=1234600298-1478593989-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853276; CNZZDATA1254525948=818341921-1478594932-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478854139; CNZZDATA1255633284=992971032-1478594548-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853771; CNZZDATA1255604082=674674676-1478594240-http%253A%252F%252Fbzclk.baidu.com%252F%7C1478853475; _qzja=1.1925370159.1478596144085.1478841931567.1478853668904.1478854497485.1478854669372.0.0.0.220.14; _qzjb=1.1478853668903.5.0.0.0; _qzjc=1; _qzjto=22.3.0; _smt_uid=5821962f.34eed583; _jzqa=1.1805320548480478500.1478596144.1478841932.1478853669.14; _jzqc=1; _jzqb=1.5.10.1478853669.1; lianjia_ssid=333626f2-a0b8-425d-9b1c-ed066d206673");
-		Connection conn = Jsoup.connect(url).data(header);
-		//////////////
+		
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -133,19 +132,9 @@ public class WebScheduleDBService
 	}
 	private static void fetchHousesInfo(String url){
 		
-		////////header/////////
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Host", "bj.lianjia.com");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
-		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		header.put("Accept-Language", "zh-CN,zh;q=0.8");
-		header.put("Cache-Control", "max-age=0");
-		header.put("Connection", "keep-alive");
-		Connection conn = Jsoup.connect(url).data(header);
-		//////////////
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

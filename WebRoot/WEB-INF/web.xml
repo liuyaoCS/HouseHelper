@@ -3,18 +3,36 @@
     xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+  <listener>
+  	<listener-class>com.ly.spider.listener.InitListener</listener-class>
+  </listener>
+  
   <servlet>
     <servlet-name>UIServlet</servlet-name>
     <servlet-class>com.ly.spider.servlet.UIServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>UIServlet</servlet-name>
     <url-pattern>/UIServlet</url-pattern>
   </servlet-mapping>
   
-  <listener>
-  	<listener-class>com.ly.spider.listener.InitListener</listener-class>
-  </listener>
+  <servlet>
+    <servlet-name>api_init</servlet-name>
+    <servlet-class>com.ly.spider.api.api_init</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>api_init</servlet-name>
+    <url-pattern>/api_init</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>api_search</servlet-name>
+    <servlet-class>com.ly.spider.api.api_search</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>api_search</servlet-name>
+    <url-pattern>/api_search</url-pattern>
+  </servlet-mapping>
+  
 
 </web-app>

@@ -21,6 +21,7 @@ import org.jsoup.select.Elements;
 
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
+import com.ly.spider.app.JsoupConn;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.util.TextUtil;
 
@@ -55,19 +56,9 @@ public class JavaAddDBService
 	}
 	private static int fetchPages(String url){
 		
-		////////header/////////
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Host", "bj.lianjia.com");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
-		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		header.put("Accept-Language", "zh-CN,zh;q=0.8");
-		header.put("Cache-Control", "max-age=0");
-		header.put("Connection", "keep-alive");
-		Connection conn = Jsoup.connect(url).data(header);
-		//////////////
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,19 +76,9 @@ public class JavaAddDBService
 	}
 	private static void fetchHousesInfo(String url){
 		
-		////////header/////////
-		Map<String, String> header = new HashMap<String, String>();
-		header.put("Host", "bj.lianjia.com");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
-		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		header.put("Accept-Language", "zh-CN,zh;q=0.8");
-		header.put("Cache-Control", "max-age=0");
-		header.put("Connection", "keep-alive");
-		Connection conn = Jsoup.connect(url).data(header);
-		//////////////
 		Document doc = null;
 		try {
-			doc = conn.timeout(100000).get();
+			doc = JsoupConn.getInstance(url).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

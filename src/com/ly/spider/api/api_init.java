@@ -1,105 +1,75 @@
-package com.ly.spider.listener;
+package com.ly.spider.api;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.TimerTask;
+import java.util.Map;
+import java.util.Set;
 
-import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import com.ly.spider.app.Config;
 import com.ly.spider.app.DataSource;
 import com.ly.spider.bean.HouseInfoData;
 import com.ly.spider.bean.PriceTrendData;
-import com.ly.spider.core.WebScheduleDBService;
+import com.ly.spider.core.WebSearchService;
+import com.ly.spider.rule.Rule;
 import com.ly.spider.util.TextUtil;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-public class ScheduleTask extends TimerTask {
-
-	private ServletContext mContext;
-	public ScheduleTask(ServletContext context) {
-		// TODO Auto-generated constructor stub
-		mContext=context;
+public class api_init extends HttpServlet {
+	
+	private  ComboPooledDataSource cpds;
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
 	}
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		int newNum=0;
-		//newNum=scheduleDB();
-		fetchFromDB(newNum);
-	}
-	private static int preScheduleDB(){
-		java.sql.Connection connection=null;
-		PreparedStatement statement=null;
-		int ret=0;
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		response.setCharacterEncoding("utf-8");
+		response.setHeader("content-type", "text/json;charset=utf-8");
+		
+		String ret=fetchFromDB().toString();
+		PrintWriter out = null;
 		try {
-			connection = DataSource.getInstance().getConnection();
-			String resetSql="update houseinfo set flag=0";
-			statement=(PreparedStatement) connection.prepareStatement(resetSql);
-			ret=statement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ret;
+		    out = response.getWriter();
+		    out.write(ret);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} 
+		    
 	}
-	private static int postScheduleDB(){
-		java.sql.Connection connection=null;
-		PreparedStatement statement=null;
-		int ret=0;
-		try {
-			connection = DataSource.getInstance().getConnection();
-			String deleteSql="delete from houseinfo where flag=0";
-			statement=(PreparedStatement) connection.prepareStatement(deleteSql);
-			ret=statement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	private  int scheduleDB()
-	{	
-		int preNum=preScheduleDB();
-		System.out.println("共有"+preNum+"条记录flag置为0");
+	private  JSONObject fetchFromDB(){
 		
-		long begintime=System.currentTimeMillis();
-		for(int i=0;i<Config.Areas.length;i++){
-			String area=Config.Areas[i];
-			//WebScheduleDBService.extract(Config.BASEURL+area+"/","/");
-			System.out.println(area+" begin-----------");
-			WebScheduleDBService.extractFine(Config.BASEURL+area+"/","/");	
-			System.out.println(area+" end-----------");
-		}
-		int newHouseNum=WebScheduleDBService.newDatas.size();
-		int modifyHouseNum=WebScheduleDBService.modifyDatas.size();
-		long endtime=System.currentTimeMillis();
-		System.out.println("新增"+newHouseNum+"套。报价变动"+modifyHouseNum+"套。耗时:"+(endtime-begintime)/60000+"分钟");
-		
-		//this.mContext.setAttribute("newHouseNum", newHouseNum+"");
-		//this.mContext.setAttribute("modifyHouseNum", modifyHouseNum+"");
-		
-		int postNum=postScheduleDB();
-		System.out.println("共有"+postNum+"条记录被删除");
-		
-		return newHouseNum;
-	}
-	private  void fetchFromDB(int newsNum){
+		JSONObject ret=new JSONObject();
 		
 		java.sql.Connection connection=null;
 		PreparedStatement statement=null;
 		try {
 			connection = DataSource.getInstance().getConnection();
 			double avgPrice=0,unitAvgPrice = 0;
+			int newsNum=0;
 			//新增房源
-			this.mContext.setAttribute("newHouseNum", String.valueOf(newsNum));
+			String newSql="select newsNum  from price where id="+TextUtil.getDateString(0);
+			statement=(PreparedStatement) connection.prepareStatement(newSql);
+			ResultSet nrs=statement.executeQuery();
+			if(nrs!=null && nrs.next()){
+				newsNum=nrs.getInt("newsNum");
+			}
+			ret.put("newHouseNum", String.valueOf(newsNum));
 			//计算总价均价
 			String searchSql="select avg(price) as avgPrice from houseinfo";
 			statement=(PreparedStatement) connection.prepareStatement(searchSql);
@@ -107,16 +77,16 @@ public class ScheduleTask extends TimerTask {
 			DecimalFormat df = new DecimalFormat("0.00");
 			if(rs!=null && rs.next()){
 				avgPrice=rs.getDouble("avgPrice");
-				this.mContext.setAttribute("avgPrice", df.format(avgPrice));
 			}
+			ret.put("avgPrice", df.format(avgPrice));
 			//计算单价均价
 			String uSql="select avg(unitPrice) as unitAvgPrice from houseinfo";
 			statement=(PreparedStatement) connection.prepareStatement(uSql);
 			ResultSet urs=statement.executeQuery();
 			if(urs!=null && urs.next()){
 				unitAvgPrice=urs.getDouble("unitAvgPrice");
-				this.mContext.setAttribute("unitAvgPrice", df.format(unitAvgPrice));
 			}
+			ret.put("unitAvgPrice", df.format(unitAvgPrice));
 			//报价变动
 			List<HouseInfoData> upDatas=new ArrayList<HouseInfoData>();
 			String mUpSql="select * from houseinfo where gap>0 order by gap desc";
@@ -137,7 +107,7 @@ public class ScheduleTask extends TimerTask {
 				upDatas.add(data);
 			}
 			JSONArray upJson=JSONArray.fromObject(upDatas);
-			this.mContext.setAttribute("upDatas", upJson);
+			ret.put("upDatas", upJson);
 			
 			List<HouseInfoData> downDatas=new ArrayList<HouseInfoData>();
 			String mDownSql="select * from houseinfo where gap<0 order by gap asc";
@@ -158,24 +128,11 @@ public class ScheduleTask extends TimerTask {
 				downDatas.add(data);
 			}
 			JSONArray downJson=JSONArray.fromObject(downDatas);
-			this.mContext.setAttribute("downDatas", downJson);
+			ret.put("downDatas", downJson);
 			
 			int modifySize=upJson.size()+downJson.size();
-			this.mContext.setAttribute("modifyHouseNum", String.valueOf(modifySize));
+			ret.put("modifyHouseNum", String.valueOf(modifySize));
 			//均价走势图	
-//			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");  
-//			String time=dateFormat.format(new Date());  
-			String time=TextUtil.getDateString(-1);
-			
-			try {
-				String iSql="insert into price values("+time+","+unitAvgPrice+","+avgPrice+","+newsNum+","+upDatas.size()+","+downDatas.size()+")";
-				statement=(PreparedStatement) connection.prepareStatement(iSql);
-				statement.executeUpdate();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getLocalizedMessage());
-			}
-			
 			String trendSql="select id,unitPrice  from price order by id desc limit "+Config.TrendsLimit+"";
 			statement=(PreparedStatement) connection.prepareStatement(trendSql);
 			ResultSet trs=statement.executeQuery();
@@ -186,17 +143,14 @@ public class ScheduleTask extends TimerTask {
 				String id=trs.getString("id");
 				trends.add(0, new PriceTrendData(id,unitPrice,0));
 			}
-			this.mContext.setAttribute("trends", trends);
-//			for(PriceTrendData ptd:trends){
-//				System.out.println(ptd);
-//			}
+			ret.put("trends", trends);
+			
 			statement.close();
 			connection.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		return ret;
 	}
-
 }

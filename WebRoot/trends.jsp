@@ -57,13 +57,13 @@ for (int i = 1; i <= 30; i++)
 str = "";
 int stringHeight = 0;
 
-final int highestPrice=67500; //最高价
-final int priceDeta=2500;     //每个格表示的价格
+final int highestPrice=65000; //最高价
+final int priceDeta=1000;     //每个格表示的价格
 
 final int maxDis=300;   //最大距离
 final int pointDeta=30; //每个格的距离
 int avgDis=maxDis/2;    //中间距离
-int avgPosPrice=highestPrice-maxDis/pointDeta/2*priceDeta;//中间价格 55000
+int avgPosPrice=highestPrice-maxDis/pointDeta/2*priceDeta;//中间价格 55000 60000
 
 int avgPos=0;
 for (int i = 0; i < maxDis; i += pointDeta)
