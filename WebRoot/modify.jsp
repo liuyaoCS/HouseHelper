@@ -48,9 +48,12 @@
 				 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 				  historyprice+=jsonArray[j].price+"万 "+jsonArray[j].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
 			  } 
+			  
+			 
+			  window.img = "<img  src="+ujson[i].picUrl+"/>";
               $("#uplist").append("<li>"
         	  				+"<div class='item'>"
-							+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+ujson[i].picUrl+"/></a>"
+							+	"<iframe  src='javascript:parent.img;' frameBorder='0' scrolling='no' ></iframe>"
 							+   "<div class='right'>"
 							+       "<h3><a href="+ujson[i].linkUrl+">"+ujson[i].title+"</a></h3>"
 							+       "<div><span>"+ujson[i].area+"."+ujson[i].address+"</span></div>"
@@ -79,9 +82,11 @@
 				 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 				  historyprice+=jsonArray[j].price+"万 "+jsonArray[j].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
 			 	 } 
+			 	 window.img = "<img  src="+ujson[i].picUrl+"/>";
             	  $("#uplist").append("<li>"
         	  				+"<div class='item'>"
-							+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+ujson[i].picUrl+"/></a>"
+							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+ujson[i].picUrl+"/></a>"
+							+	"<iframe  src='javascript:parent.img;' frameBorder='0' scrolling='no' ></iframe>"
 							+   "<div class='right'>"
 							+       "<h3><a href="+ujson[i].linkUrl+">"+ujson[i].title+"</a></h3>"
 							+       "<div><span>"+ujson[i].area+"."+ujson[i].address+"</span></div>"
@@ -104,10 +109,12 @@
 			  for(var k=0;k<jsonArray.length;k++) {
 				 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 				  historyprice+=jsonArray[k].price+"万 "+jsonArray[k].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
-			  } 
+			  }
+			  window.img = "<img  src="+ujson[i].picUrl+"/>"; 
               $("#downlist").append("<li>"
         	  				+"<div class='item'>"
-							+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
+							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
+							+	"<iframe  src='javascript:parent.img;' frameBorder='0' scrolling='no' ></iframe>"
 							+   "<div class='right'>"
 							+       "<h3><a href="+djson[j].linkUrl+">"+djson[j].title+"</a></h3>"
 							+       "<div><span>"+djson[j].area+"."+djson[j].address+"</span></div>"
@@ -137,10 +144,12 @@
 					  for(var k=0;k<jsonArray.length;k++) {
 						 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 						  historyprice+=jsonArray[k].price+"万 "+jsonArray[k].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
-					  } 
+					  }
+					 window.img = "<img  src="+ujson[i].picUrl+"/>";  
              		 $("#downlist").append("<li>"
         	  				+"<div class='item'>"
-							+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
+							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
+							+	"<iframe  src='javascript:parent.img;' frameBorder='0' scrolling='no' ></iframe>"
 							+   "<div class='right'>"
 							+       "<h3><a href="+djson[j].linkUrl+">"+djson[j].title+"</a></h3>"
 							+       "<div><span>"+djson[j].area+"."+djson[j].address+"</span></div>"

@@ -12,7 +12,7 @@
 	height:200px;
 	border:2px solid #E4E4E4;
 }
-.item img{ 
+.item img , .item iframe{ 
   	float:left; 
   	margin:10px; 
   	width:35%; 
@@ -24,7 +24,7 @@
 }
 .item .right{ 
    	float:right;
-   	width:60%; 
+   	width:55%; 
    	height:90%;
    	padding-top: 20px;
 }

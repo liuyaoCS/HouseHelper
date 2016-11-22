@@ -52,10 +52,11 @@
 				  //historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 				  historyprice+=jsonArray[j].price+"万 "+jsonArray[j].date;
 			  } 
-
+			  window.img = "<img  src="+houses[i].picUrl+"/>";  
               $("#list").append("<li>"
         	  				+"<div class='item'>"
-							+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+houses[i].picUrl+"/></a>"
+							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+houses[i].picUrl+"/></a>"
+							+	"<iframe  src='javascript:parent.img;' frameBorder='0' scrolling='no' ></iframe>"
 							+   "<div class='right'>"
 							+       "<h3><a href="+houses[i].linkUrl+">"+houses[i].title+"</a></h3>"
 							+       "<div><span>"+houses[i].area+"."+houses[i].address+"</span></div>"

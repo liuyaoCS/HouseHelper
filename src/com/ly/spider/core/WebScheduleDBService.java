@@ -119,10 +119,10 @@ public class WebScheduleDBService
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		if(doc==null)return 0;
 		//处理返回数据
 		Elements pageEles=doc.select("div.house-lst-page-box");
-		if(pageEles.size()==0)return 0;
+		if(pageEles==null || pageEles.size()==0)return 0;
 		Element pageEle=pageEles.get(0);
 		String pagesStr=pageEle.attr("page-data");
 		JSONObject pagesJson = JSONObject.fromObject(pagesStr);

@@ -23,7 +23,7 @@
 	height:200px;
 	border:2px solid #E4E4E4;
 }
-.item img{ 
+.item img, .item iframe{ 
   	float:left; 
   	margin:10px; 
   	width:35%; 
@@ -32,7 +32,7 @@
   	box-shadow: 1px 1px 4px #E4E4E4;
 	-moz-box-shadow: 1px 1px 4px #E4E4E4;
 	-webkit-box-shadow: 1px 1px 4px #E4E4E4;
-}
+}	
 .item .right{ 
 	float:right;
 	width:60%; 
