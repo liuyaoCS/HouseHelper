@@ -110,7 +110,7 @@
 				 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 				  historyprice+=jsonArray[k].price+"万 "+jsonArray[k].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
 			  }
-			  window.img = "<img  src="+ujson[i].picUrl+"/>"; 
+			  window.img = "<img  src="+djson[j].picUrl+"/>"; 
               $("#downlist").append("<li>"
         	  				+"<div class='item'>"
 							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
@@ -145,7 +145,7 @@
 						 // historyprice=historyprice+jsonArray[i]["price"]+"万 "+jsonArray[i]["date"]+"; ";
 						  historyprice+=jsonArray[k].price+"万 "+jsonArray[k].date+"</br>&nbsp;&nbsp;&nbsp;&nbsp;"; 
 					  }
-					 window.img = "<img  src="+ujson[i].picUrl+"/>";  
+					 window.img = "<img  src="+djson[j].picUrl+"/>";  
              		 $("#downlist").append("<li>"
         	  				+"<div class='item'>"
 							//+   "<a href='#'><img src=http://read.html5.qq.com/image?imageUrl="+djson[j].picUrl+"/></a>"
