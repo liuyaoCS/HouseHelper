@@ -32,7 +32,7 @@ public class ScheduleTask extends TimerTask {
 	public void run() {
 		// TODO Auto-generated method stub
 		int newNum=0;
-		newNum=scheduleDB();
+		//newNum=scheduleDB();
 		fetchFromDB(newNum);
 	}
 	private static int preScheduleDB(){

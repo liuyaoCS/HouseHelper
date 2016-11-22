@@ -1,126 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
- <meta charset="utf-8">
- <title>房贷计算器</title>
+ <head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+  <style>
+   body {
+    height: 2000px;
+   }
+   #block {
+    width:200px;
+    height:200px;
+    background-color: red;
+    position: absolute;
+    left: 0;
+    top: 0;
+   }
+  </style>
+ </head>
+ <body>
+  <div>
+   touchstart,touchmove,
+   touchend,touchcancel
+  </div>
+  <div id="block"></div>
+<script>
+  // 获取节点
+  var block = document.getElementById("block");
+  var oW,oH;
+  // 绑定touchstart事件
+  block.addEventListener("touchstart", function(e) {
+   console.log(e);
+   var touches = e.touches[0];
+   oW = touches.clientX - block.offsetLeft;
+   oH = touches.clientY - block.offsetTop;
+   //阻止页面的滑动默认事件
+   document.addEventListener("touchmove",defaultEvent,false);
+  },false)
  
- <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
- <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>   
- <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-<style type="text/css">
-		input[type="text"] {
-			border: 1px solid #DADADA;
-			color: #888;
-			width: 25%;
-			height: 30px;
-			margin-bottom: 16px;
-			margin-right: 6px;
-			margin-top: 2px;
-			padding: 5px;
-			font-size: 12px;
-			box-shadow: inset 0px 1px 4px #ECECEC;
-			-moz-box-shadow: inset 0px 1px 4px #ECECEC;
-			-webkit-box-shadow: inset 0px 1px 4px #ECECEC;
-		}
-		select {
-			border: 1px solid #DADADA;
-			color: #888;
-			width: 25%;
-			height: 40px;
-			margin-bottom: 16px;
-			margin-right: 6px;
-			margin-top: 2px;
-			padding: 5px;
-			font-size: 12px;
-			box-shadow: inset 0px 1px 4px #ECECEC;
-			-moz-box-shadow: inset 0px 1px 4px #ECECEC;
-			-webkit-box-shadow: inset 0px 1px 4px #ECECEC;
-		}
-		#btn {
-			background: #E27575;
-			border: none;
-			padding: 10px 25px 10px 25px;
-			color: #FFF;
-			box-shadow: 1px 1px 5px #B6B6B6;
-			border-radius: 3px;
-			text-shadow: 1px 1px 1px #9E3F3F;
-			cursor: pointer;
-			text-align: center;
-		}
-</style>
-</head>
-<body>
-<div id="dialog-confirm" title="房贷计算器" >
-	<span>贷款类型:<select id="type">
-				<option value=1>商业贷款</option>
-				<option value=2>公积金贷款</option>
-				<option value=3>组合贷款</option>
-			</select>
-	</span><br/>
-	<span>
-		成交价(万元):<input id="price" type="text" >
-		房屋评估(折):<input id="eprice" type="text">
-	</span><br/>
-	<span>
-		银行折扣:<select id="discount"><option value=1.0>基准</option><option value=0.85 selected="selected">85折</option></select>
-		贷款年限:<select id="time"><option value=1>30年</option><option value=2>20年</option></select>
-	</span><br/>
-	<span>
-		服务费点:<input id="service" type="text" value="2.7">
-		契税费点:<input id="tax" type="text" value="1">
-	</span><br/>
-	<input type="button" id="btn" value="计算"><br/>
-	<p>首付金额:<span id="downPay"></span></p>
-	<p>贷款总额:<span id="sum"></span></p>
-	<p>每月还款:<span id="repay"></span></p>
-	<p>最低收入证明:<span id="income"></span></p>
-</div>
-
-<script type="text/javascript">
-	$(function() {
-	   $( "#dialog-confirm" ).dialog({
-	     resizable: false,
-	     height:540,
-	     width:660,
-	     modal: true,
-	     //按钮
-	   });
-	 });
-    $("#btn").click(function () {
-        //alert("clicked");
-         var type=$("#type").val();
-         var price=$("#price").val();
-         var eprice=$("#eprice").val();
-         var discount=$("#discount").val();
-         var time=$("#time").val();
-         var service=$("#service").val();
-         var tax=$("#tax").val();
-         //alert(type+" "+price+" "+eprice+" "+discount+" "+time+" "+service+" "+tax);
-         var ch=service;
-         var tch=tax;
-         var dy=4.9*discount/100;
-         var dm=dy/12; //每月贷款利率       
-         var hep=price*10000*eprice; //0.9房评    
-         var sum=hep*0.65;//可贷款总额
-         var months=360;
-         var downPay=price*10000-sum+hep*tch/100+price*10000*ch/100;//总首付
-         downPay=downPay/10000;
-         
-         var sellerGet=price*10000-sum;
-         var govGet=hep*tch/100;
-         var agencyGet=price*10000*ch/100;
-         var repay=sum*dm*Math.pow((1+dm), months);
-         repay/=(Math.pow((1+dm), months)-1); //每月还贷
-         //alert("downPay->"+downPay+" ret->"+ret);
-         sum/=10000;
-         var income=repay*2;
-         $("#downPay").html(downPay.toFixed(2)+" 万元");
-         $("#sum").html(sum.toFixed(2)+" 万元");
-         $("#repay").html(repay.toFixed(2)+" 元");
-         $("#income").html(income.toFixed(2)+" 元/月");
-
-    });
+  block.addEventListener("touchmove", function(e) {
+   var touches = e.touches[0];
+   var oLeft = touches.clientX - oW;
+   var oTop = touches.clientY - oH;
+   if(oLeft < 0) {
+    oLeft = 0;
+   }else if(oLeft > document.documentElement.clientWidth - block.offsetWidth) {
+    oLeft = (document.documentElement.clientWidth - block.offsetWidth);
+   }
+   block.style.left = oLeft + "px";
+   block.style.top = oTop + "px";
+  },false);
+   
+  block.addEventListener("touchend",function() {
+   document.removeEventListener("touchmove",defaultEvent,false);
+  },false);
+  function defaultEvent(e) {
+   e.preventDefault();
+  }
 </script>
-</body>
+ </body>
 </html>

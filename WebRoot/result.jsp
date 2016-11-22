@@ -4,66 +4,16 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8">
-<meta name="viewport" content="width=device-width" />
 <title>北京二手房</title>
+<link rel="stylesheet" href="css/result.css"></link>
 <script src="js/jquery-1.4.2.js"></script>
-<link rel="stylesheet" href="css/dialog.css" media="all">
-<style  type="text/css">
-	#count{
-		text-align:center;
-	}
-	#list{
-		list-style:none;
-		width:500px; 
-		margin:auto;
-	}
-    .item{ 
-    	width:500px; 
-    	height:200px;
-    	border:2px solid #E4E4E4;
-    }
-    .item img{ 
-    	float:left; 
-    	margin:10px; 
-    	width:35%; 
-    	height:85%;
-    	
-    	box-shadow: 1px 1px 4px #E4E4E4;
-		-moz-box-shadow: 1px 1px 4px #E4E4E4;
-		-webkit-box-shadow: 1px 1px 4px #E4E4E4;
-   	}
-    .item .right{ 
-    	float:right;
-    	width:60%; 
-    	height:90%;
-    	padding-top: 20px;
-    }
-    .item span{ 
-    	font-size: 14px;
-    	margin-bottom: 15px;
-    }
-    .item .right h3{ 
-    	height:36px; 
-    	font-size:16px;
-    	margin-bottom: 10px;
-    	color: #009de8;
-   	}
-    .item .right h4{
-    	font-size: 14px;
-    	color: #FF0000; 
-    	display : inline;
-   	}
-    .item .right h5{
-    	font-size: 12px; 
-    	display : inline;
-   	}
-  
-</style>
+<script  src="js/dialog.js"></script> 
 </head>
 <body>
     <div id="count"></div>
     <ul id="list">
     </ul>
+   
     <script type="text/javascript" charset="UTF-8">
     	var json = <%=request.getAttribute("data")%>;     	
         // var json=eval(jsonstr);
@@ -118,21 +68,18 @@
         }
       	
     </script>
-    <div class="theme-popover">
+    
+    <div id="theme-popover"  
+    	onmousedown="mouseDown(this,event)"  onmousemove="mouseMove(event)" onmouseup="mouseUp(event)">
      	<div class="theme-poptit">
           <a href="javascript:;" title="关闭" class="close">×</a>
           <h3>房贷计算器</h3>
      	</div>
      	<div class="theme-popbod">
-
             <span>贷款类型:<select id="type">
                         <option value=1>商业贷款</option>
                         <option value=2>公积金贷款</option>
                     </select>
-            </span><br/>
-            <span id="s_price">
-              	  成交价(万元):<input id="price" type="text" >
-            	  房屋评估(折):<input id="eprice" type="text" value=0.9>
             </span><br/>
             <span>
              	  利率折扣:<select id="discount">
@@ -151,9 +98,14 @@
               	  	<option value=120>10年</option>
               	  </select>
             </span><br/>
+            <span id="s_price">
+              	  成交价(万元):<input id="price" type="text" >
+            	  房屋评估(折):<input id="eprice" type="text" value=0.9>
+            </span><br/>
+            
             <span>
-               	  服务费点:<input id="service" type="text" value="2.7">
-               	  契税费点:<input id="tax" type="text" value="1">
+               	  服务费点(%):<input id="service" type="text" value="2.7">
+               	  契税费点(%):<input id="tax" type="text" value="1">
             </span><br/>
             <input type="button" id="btn" value="计算"><br/>
             <p>首付金额:<span id="downPay"></span></p>
@@ -163,11 +115,45 @@
 
         </div>
    </div>
+   <script>
+	  // 获取节点
+	  var block = document.getElementById("theme-popover");
+	  var oW,oH;
+	  // 绑定touchstart事件
+	  block.addEventListener("touchstart", function(e) {
+	   console.log(e);
+	   var touches = e.touches[0];
+	   oW = touches.clientX - block.offsetLeft;
+	   oH = touches.clientY - block.offsetTop;
+	   //阻止页面的滑动默认事件
+	   document.addEventListener("touchmove",defaultEvent,false);
+	  },false)
+	 
+	  block.addEventListener("touchmove", function(e) {
+	   var touches = e.touches[0];
+	   var oLeft = touches.clientX - oW;
+	   var oTop = touches.clientY - oH;
+	   if(oLeft < 0) {
+	    oLeft = 0;
+	   }else if(oLeft > document.documentElement.clientWidth - block.offsetWidth) {
+	    oLeft = (document.documentElement.clientWidth - block.offsetWidth);
+	   }
+	   block.style.left = oLeft + "px";
+	   block.style.top = oTop + "px";
+	  },false);
+	   
+	  block.addEventListener("touchend",function() {
+	   document.removeEventListener("touchmove",defaultEvent,false);
+	  },false);
+	  function defaultEvent(e) {
+	   e.preventDefault();
+	  }
+	</script>
    <script type="text/javascript">
   
     function setPrice(p){
     	
-        $('.theme-popover').show(1,null);
+        $('#theme-popover').show(1,null);
         $("#price").val(p);
         $("#downPay").html("");
         $("#sum").html("");
@@ -176,7 +162,7 @@
     }
     $('.theme-poptit .close').click(function(){
 
-        $('.theme-popover').hide(1,null);
+        $('#theme-popover').hide(1,null);
     });
     $("#type").change(function(){
     	var val=$(this).children('option:selected').val();
@@ -230,10 +216,10 @@
 	        sum/=10000;
 	        var income=repay*2;
 	        
-	        $("#downPay").html(downPay.toFixed(2)+" 万元");
-	        $("#sum").html(sum.toFixed(2)+" 万元");
-	        $("#repay").html(repay.toFixed(2)+" 元");
-	        $("#income").html(income.toFixed(2)+" 元/月");
+	        $("#downPay").html("<span style='color:red;'>"+downPay.toFixed(2)+"</span> 万元");
+	        $("#sum").html("<span style='color:red;'>"+sum.toFixed(2)+"</span> 万元");
+	        $("#repay").html("<span style='color:red;'>"+repay.toFixed(2)+"</span> 元");
+	        $("#income").html("<span style='color:red;'>"+income.toFixed(2)+"</span> 元/月");
         }else if(type==2){
         	var interest=3.25;//公积金基准利率
         	var ch=service;
@@ -255,10 +241,10 @@
 	        sum/=10000;
 	        var income=repay*2;
 	        
-	        $("#downPay").html(downPay.toFixed(2)+" 万元");
-	        $("#sum").html(sum.toFixed(2)+" 万元");
-	        $("#repay").html(repay.toFixed(2)+" 元");
-	        $("#income").html(income.toFixed(2)+" 元/月");
+	        $("#downPay").html("<span style='color:red;'>"+downPay.toFixed(2)+"</span> 万元");
+	        $("#sum").html("<span style='color:red;'>"+sum.toFixed(2)+"</span> 万元");
+	        $("#repay").html("<span style='color:red;'>"+repay.toFixed(2)+"</span> 元");
+	        $("#income").html("<span style='color:red;'>"+income.toFixed(2)+"</span> 元/月");
         }
     });
    </script>
